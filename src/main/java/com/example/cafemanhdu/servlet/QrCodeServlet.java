@@ -1,0 +1,38 @@
+package com.example.cafemanhdu.servlet;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+@WebServlet("/generateQr")
+public class QrCodeServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String qrCodeText = "https://12fe-113-23-115-97.ngrok-free.app/CafeManagement/scanQr?qrCode=qr_table1";
+        int size = 250;
+
+        response.setContentType("image/png");
+        OutputStream outputStream = response.getOutputStream();
+
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeText, BarcodeFormat.QR_CODE, size, size);
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+        } catch (WriterException e) {
+            throw new ServletException("Error generating QR code", e);
+        } finally {
+            outputStream.close();
+        }
+    }
+}
