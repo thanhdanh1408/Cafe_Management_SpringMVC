@@ -44,4 +44,35 @@ public class MenuItemsDAO {
             stmt.executeUpdate();
         }
     }
+    
+    //Thêm, sửa, xóa
+    public void createMenuItem(String itemName, java.math.BigDecimal price) throws SQLException {
+        String sql = "INSERT INTO menuitems (item_name, price, status) VALUES (?, ?, 'available')";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, itemName);
+            stmt.setBigDecimal(2, price);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
+        String sql = "UPDATE menuitems SET item_name = ?, price = ? WHERE item_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, itemName);
+            stmt.setBigDecimal(2, price);
+            stmt.setInt(3, itemId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void deleteMenuItem(int itemId) throws SQLException {
+        String sql = "DELETE FROM menuitems WHERE item_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, itemId);
+            stmt.executeUpdate();
+        }
+    }
 }

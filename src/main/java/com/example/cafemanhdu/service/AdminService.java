@@ -32,4 +32,23 @@ public class AdminService {
     public void updateItemStatus(int itemId, String status) throws SQLException {
         menuItemsDAO.updateItemStatus(itemId, status);
     }
+    
+    //Thêm, sửa, xóa
+    public void createMenuItem(String itemName, java.math.BigDecimal price) throws SQLException {
+        menuItemsDAO.createMenuItem(itemName, price);
+    }
+
+    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
+        menuItemsDAO.updateMenuItem(itemId, itemName, price);
+    }
+
+    public void deleteMenuItem(int itemId) throws SQLException {
+        menuItemsDAO.deleteMenuItem(itemId);
+    }
+    
+    //Xóa order
+    public void deleteOrder(int orderId) throws SQLException {
+        ordersDAO.deleteOrder(orderId);
+    }
+
 }

@@ -19,7 +19,7 @@ public class OrdersDAO {
     private DataSource dataSource;
 
     public int createOrder(int tableId, String paymentMethod, java.math.BigDecimal totalAmount, String comments) throws SQLException {
-        String sql = "INSERT INTO orders (table_id, payment_method, total_amount, comments) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO orders (table_id, payment_method, total_amount, comments, status) VALUES (?, ?, ?, ?, 'pending')";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, tableId);
@@ -52,7 +52,7 @@ public class OrdersDAO {
 
     public List<Order> getPendingOrders() throws SQLException {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments " +
+        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
                     "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status = 'pending'";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -66,6 +66,7 @@ public class OrdersDAO {
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setTotalAmount(rs.getBigDecimal("total_amount"));
                 order.setComments(rs.getString("comments"));
+                order.setStatus(rs.getString("status"));
                 orders.add(order);
             }
         }
@@ -78,6 +79,15 @@ public class OrdersDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, status);
             stmt.setInt(2, orderId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void deleteOrder(int orderId) throws SQLException {
+        String sql = "DELETE FROM orders WHERE order_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
             stmt.executeUpdate();
         }
     }

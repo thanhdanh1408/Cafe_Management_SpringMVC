@@ -122,4 +122,48 @@ public class HomeController {
             return "adminDashboard";
         }
     }
+    
+    @PostMapping("/createMenuItem")
+    public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
+        try {
+            adminService.createMenuItem(itemName, price);
+            return "redirect:/admin";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error creating menu item: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
+
+    @PostMapping("/updateMenuItem")
+    public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
+        try {
+            adminService.updateMenuItem(itemId, itemName, price);
+            return "redirect:/admin";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error updating menu item: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
+
+    @PostMapping("/deleteMenuItem")
+    public String deleteMenuItem(@RequestParam("itemId") int itemId, Model model) {
+        try {
+            adminService.deleteMenuItem(itemId);
+            return "redirect:/admin";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error deleting menu item: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
+    
+    @PostMapping("/deleteOrder")
+    public String deleteOrder(@RequestParam("orderId") int orderId, Model model) {
+        try {
+            adminService.deleteOrder(orderId);
+            return "redirect:/admin";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error deleting order: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
 }
