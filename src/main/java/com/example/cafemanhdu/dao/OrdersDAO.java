@@ -73,6 +73,29 @@ public class OrdersDAO {
         return orders;
     }
 
+    public List<Order> getOrderHistory() throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                    "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status != 'pending'";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setTableId(rs.getInt("table_id"));
+                order.setTableNumber(rs.getString("table_number"));
+                order.setOrderTime(rs.getTimestamp("order_time"));
+                order.setPaymentMethod(rs.getString("payment_method"));
+                order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                order.setComments(rs.getString("comments"));
+                order.setStatus(rs.getString("status"));
+                orders.add(order);
+            }
+        }
+        return orders;
+    }
+
     public void updateOrderStatus(int orderId, String status) throws SQLException {
         String sql = "UPDATE orders SET status = ? WHERE order_id = ?";
         try (Connection conn = dataSource.getConnection();
@@ -83,12 +106,32 @@ public class OrdersDAO {
         }
     }
 
-    public void deleteOrder(int orderId) throws SQLException {
-        String sql = "DELETE FROM orders WHERE order_id = ?";
+    public void updateOrder(int orderId, String paymentMethod, String comments, String status) throws SQLException {
+        String sql = "UPDATE orders SET payment_method = ?, comments = ?, status = ? WHERE order_id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, orderId);
+            stmt.setString(1, paymentMethod);
+            stmt.setString(2, comments);
+            stmt.setString(3, status);
+            stmt.setInt(4, orderId);
             stmt.executeUpdate();
+        }
+    }
+
+    public void deleteOrder(int orderId) throws SQLException {
+        String deleteDetailsSql = "DELETE FROM order_details WHERE order_id = ?";
+        String deleteOrderSql = "DELETE FROM orders WHERE order_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement deleteDetailsStmt = conn.prepareStatement(deleteDetailsSql);
+             PreparedStatement deleteOrderStmt = conn.prepareStatement(deleteOrderSql)) {
+            conn.setAutoCommit(false);
+            deleteDetailsStmt.setInt(1, orderId);
+            deleteDetailsStmt.executeUpdate();
+            deleteOrderStmt.setInt(1, orderId);
+            deleteOrderStmt.executeUpdate();
+            conn.commit();
+        } catch (SQLException e) {
+            throw new SQLException("Error deleting order: " + e.getMessage());
         }
     }
 }

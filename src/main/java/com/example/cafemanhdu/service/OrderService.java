@@ -8,6 +8,7 @@ import com.example.cafemanhdu.dao.TablesDAO;
 import com.example.cafemanhdu.model.OrderDetail;
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.MenuItem;
+import com.example.cafemanhdu.model.Table;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -63,6 +64,27 @@ public class OrderService {
 
     public void updateItemStatus(int itemId, String status) throws SQLException {
         menuItemsDAO.updateItemStatus(itemId, status);
+    }
+
+    public List<Table> getAllTables() throws SQLException {
+        return tablesDAO.getAllTables();
+    }
+
+    public void createTable(String tableNumber) throws SQLException {
+        tablesDAO.createTable(tableNumber, null);
+    }
+
+    public void deleteTable(int tableId) throws SQLException {
+        tablesDAO.deleteTable(tableId);
+    }
+    
+    //reset id table
+    public void resetTableId() throws SQLException {
+        tablesDAO.resetTableId();
+    }
+
+    public List<Order> getOrderHistory() throws SQLException {
+        return ordersDAO.getOrderHistory();
     }
 
     public static class OrderItem {

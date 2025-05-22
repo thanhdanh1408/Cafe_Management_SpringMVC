@@ -19,9 +19,14 @@ import java.io.OutputStream;
 public class QrCodeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String qrCodeText = "https://12fe-113-23-115-97.ngrok-free.app/CafeManagement/scanQr?qrCode=qr_table1";
-        int size = 250;
+        String qrCode = request.getParameter("qrCode");
+        if (qrCode == null || qrCode.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "QR Code parameter is missing");
+            return;
+        }
 
+        String qrCodeText = "https://12fe-113-23-115-97.ngrok-free.app/CafeManagement/scanQr?qrCode=" + qrCode;
+        int size = 150; // Kích thước
         response.setContentType("image/png");
         OutputStream outputStream = response.getOutputStream();
 

@@ -16,6 +16,7 @@ import com.example.cafemanhdu.service.OrderService;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
 import com.example.cafemanhdu.model.MenuItem;
 import com.example.cafemanhdu.model.OrderForm;
+import com.example.cafemanhdu.model.Table;
 import com.example.cafemanhdu.service.AdminService;
 import com.example.cafemanhdu.service.OrderService.OrderItem;
 
@@ -90,10 +91,13 @@ public class HomeController {
     }
 
     @GetMapping("/admin")
-    public String adminDashboard(Model model) {
+    public String adminDashboard(Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
         try {
             model.addAttribute("pendingOrders", adminService.getPendingOrders());
             model.addAttribute("menuItems", adminService.getAllMenuItems());
+            model.addAttribute("tables", orderService.getAllTables());
+            model.addAttribute("orderHistory", orderService.getOrderHistory());
+            model.addAttribute("activeTab", tab);
             return "adminDashboard";
         } catch (SQLException e) {
             model.addAttribute("error", "Error loading admin dashboard: " + e.getMessage());
@@ -105,9 +109,59 @@ public class HomeController {
     public String updateOrderStatus(@RequestParam("orderId") int orderId, @RequestParam("status") String status, Model model) {
         try {
             adminService.updateOrderStatus(orderId, status);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=pendingOrders";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating order status: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
+    
+    @PostMapping("/updatePendingOrder")
+    public String updatePendingOrder(
+            @RequestParam("orderId") int orderId,
+            @RequestParam("paymentMethod") String paymentMethod,
+            @RequestParam("comments") String comments,
+            @RequestParam("status") String status,
+            Model model) {
+        try {
+            adminService.updateOrder(orderId, paymentMethod, comments, status);
+            return "redirect:/admin?tab=pendingOrders";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error updating order: " + e.getMessage());
+            try {
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "pendingOrders");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
+            return "adminDashboard";
+        }
+    }
+
+    @PostMapping("/updateOrderHistory")
+    public String updateOrderHistory(
+            @RequestParam("orderId") int orderId,
+            @RequestParam("paymentMethod") String paymentMethod,
+            @RequestParam("comments") String comments,
+            @RequestParam("status") String status,
+            Model model) {
+        try {
+            adminService.updateOrder(orderId, paymentMethod, comments, status);
+            return "redirect:/admin?tab=orderHistory";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error updating order history: " + e.getMessage());
+            try {
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "orderHistory");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
             return "adminDashboard";
         }
     }
@@ -116,18 +170,18 @@ public class HomeController {
     public String updateItemStatus(@RequestParam("itemId") int itemId, @RequestParam("status") String status, Model model) {
         try {
             adminService.updateItemStatus(itemId, status);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating item status: " + e.getMessage());
             return "adminDashboard";
         }
     }
-    
+
     @PostMapping("/createMenuItem")
     public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
         try {
             adminService.createMenuItem(itemName, price);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error creating menu item: " + e.getMessage());
             return "adminDashboard";
@@ -138,7 +192,7 @@ public class HomeController {
     public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
         try {
             adminService.updateMenuItem(itemId, itemName, price);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating menu item: " + e.getMessage());
             return "adminDashboard";
@@ -149,20 +203,64 @@ public class HomeController {
     public String deleteMenuItem(@RequestParam("itemId") int itemId, Model model) {
         try {
             adminService.deleteMenuItem(itemId);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error deleting menu item: " + e.getMessage());
             return "adminDashboard";
         }
     }
-    
+
     @PostMapping("/deleteOrder")
     public String deleteOrder(@RequestParam("orderId") int orderId, Model model) {
         try {
             adminService.deleteOrder(orderId);
-            return "redirect:/admin";
+            return "redirect:/admin?tab=pendingOrders";
         } catch (SQLException e) {
             model.addAttribute("error", "Error deleting order: " + e.getMessage());
+            return "adminDashboard";
+        }
+    }
+
+    @PostMapping("/createTable")
+    public String createTable(@RequestParam("tableNumber") String tableNumber, Model model) {
+        try {
+            orderService.createTable(tableNumber);
+            return "redirect:/admin?tab=tableManagement";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Số bàn đã có, hãy chọn số khác");
+            try {
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "tableManagement");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
+            return "adminDashboard";
+        }
+    }
+
+    @PostMapping("/deleteTable")
+    public String deleteTable(@RequestParam("tableId") int tableId, Model model) {
+        try {
+            orderService.deleteTable(tableId);
+            List<Table> tables = orderService.getAllTables();
+            if (tables.isEmpty()) {
+                orderService.resetTableId();
+            }
+            return "redirect:/admin?tab=tableManagement";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error deleting table: " + e.getMessage());
+            try {
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "tableManagement");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
             return "adminDashboard";
         }
     }
