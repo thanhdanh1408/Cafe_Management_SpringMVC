@@ -8,6 +8,7 @@ public class OrderForm {
 	private String paymentMethod;
 	private String comments;
 	private List<OrderItem> items;
+	private String qrCode;
 
 	public static class OrderItem {
 		private int itemId;
@@ -79,4 +80,12 @@ public class OrderForm {
 	public void setItems(List<OrderItem> items) {
 		this.items = items;
 	}
+	
+	public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
+    }
 }

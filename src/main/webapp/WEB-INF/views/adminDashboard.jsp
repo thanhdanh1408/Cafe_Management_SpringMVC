@@ -19,6 +19,8 @@
         .error-message { color: red; margin-bottom: 10px; }
         input[type="text"], select { padding: 5px; margin-right: 5px; }
         button { padding: 5px 10px; cursor: pointer; }
+        .logout-btn { float: right; padding: 10px 20px; background-color: #ff4444; color: white; border: none; cursor: pointer; }
+        .logout-btn:hover { background-color: #cc0000; }
     </style>
     <script>
         function openTab(evt, tabName) {
@@ -42,7 +44,7 @@
     </script>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
+    <h1>Admin Dashboard <a href="/CafeManagement/"><button class="logout-btn">Thoát</button></a></h1>
     <div class="tab">
         <button class="tablinks" onclick="openTab(event, 'pendingOrders')">Pending Orders</button>
         <button class="tablinks" onclick="openTab(event, 'menuManagement')">Menu Management</button>
@@ -72,6 +74,7 @@
                                     <option value="pending" ${order.status == 'pending' ? 'selected' : ''}>Pending</option>
                                     <option value="preparing">Preparing</option>
                                     <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
                                 </select>
                                 <button type="submit">Update</button>
                             </form>
@@ -188,6 +191,7 @@
                                 <select name="status">
                                     <option value="preparing" ${order.status == 'preparing' ? 'selected' : ''}>Preparing</option>
                                     <option value="completed" ${order.status == 'completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="cancelled" ${order.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
                                 </select>
                                 <button type="submit">Update</button>
                             </form>

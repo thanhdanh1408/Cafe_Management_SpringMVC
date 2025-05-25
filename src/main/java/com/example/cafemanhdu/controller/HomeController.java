@@ -49,6 +49,7 @@ public class HomeController {
                 List<MenuItem> menuItems = orderService.getAvailableItems();
                 model.addAttribute("tableId", tableId);
                 model.addAttribute("menuItems", menuItems);
+                model.addAttribute("qrCode", qrCode); // Lưu qrCode để quay lại
                 return "order";
             } else {
                 model.addAttribute("error", "Invalid QR Code");
@@ -76,7 +77,7 @@ public class HomeController {
                 return "order";
             }
             orderService.submitOrder(orderForm.getTableId(), selectedItems, orderForm.getPaymentMethod(), orderForm.getComments());
-            model.addAttribute("message", "Order submitted successfully!");
+            model.addAttribute("qrCode", orderForm.getQrCode()); // Truyền qrCode sang trang xác nhận
             return "orderConfirmation";
         } catch (SQLException e) {
             model.addAttribute("error", "Error submitting order: " + e.getMessage());
