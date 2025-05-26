@@ -16,6 +16,10 @@ import java.util.List;
 public class TablesDAO {
 	@Autowired
     private DataSource dataSource;
+	
+	private Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
     public boolean validateQrCode(String qrCode) throws SQLException {
         String sql = "SELECT COUNT(*) FROM tables WHERE qr_code = ?";
@@ -45,8 +49,8 @@ public class TablesDAO {
 
     public List<Table> getAllTables() throws SQLException {
         List<Table> tables = new ArrayList<>();
-        String sql = "SELECT table_id, table_number, qr_code, status FROM tables";
-        try (Connection conn = dataSource.getConnection();
+        String sql = "SELECT * FROM tables";
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {

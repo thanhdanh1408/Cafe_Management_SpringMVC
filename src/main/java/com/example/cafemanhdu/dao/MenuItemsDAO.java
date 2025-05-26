@@ -16,11 +16,19 @@ import java.util.List;
 public class MenuItemsDAO {
     @Autowired
     private DataSource dataSource;
+    
+    public MenuItemsDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+    
+    private Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
-    public List<MenuItem> getAvailableItems() throws SQLException {
-        List<MenuItem> items = new ArrayList<>();
-        String sql = "SELECT item_id, item_name, price FROM menuitems WHERE status = 'available'";
-        try (Connection conn = dataSource.getConnection();
+    public List<MenuItem> getAllMenuItems() throws SQLException {
+        List<MenuItem> menuItems = new ArrayList<>();
+        String sql = "SELECT * FROM menuitems";
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -28,11 +36,11 @@ public class MenuItemsDAO {
                 item.setItemId(rs.getInt("item_id"));
                 item.setItemName(rs.getString("item_name"));
                 item.setPrice(rs.getBigDecimal("price"));
-                item.setStatus("available");
-                items.add(item);
+                item.setStatus(rs.getString("status"));
+                menuItems.add(item);
             }
         }
-        return items;
+        return menuItems;
     }
 
     public void updateItemStatus(int itemId, String status) throws SQLException {
@@ -56,13 +64,14 @@ public class MenuItemsDAO {
         }
     }
 
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
-        String sql = "UPDATE menuitems SET item_name = ?, price = ? WHERE item_id = ?";
-        try (Connection conn = dataSource.getConnection();
+    public void updateMenuItem(MenuItem item) throws SQLException {
+        String sql = "UPDATE menuitems SET item_name = ?, price = ?, status = ? WHERE item_id = ?";
+        try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, itemName);
-            stmt.setBigDecimal(2, price);
-            stmt.setInt(3, itemId);
+            stmt.setString(1, item.getItemName());
+            stmt.setBigDecimal(2, item.getPrice());
+            stmt.setString(3, item.getStatus());
+            stmt.setInt(4, item.getItemId());
             stmt.executeUpdate();
         }
     }
@@ -73,6 +82,24 @@ public class MenuItemsDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, itemId);
             stmt.executeUpdate();
+        }
+    }
+    
+    public MenuItem getMenuItemById(int itemId) throws SQLException {
+        String sql = "SELECT * FROM menuitems WHERE item_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, itemId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                MenuItem item = new MenuItem();
+                item.setItemId(rs.getInt("item_id"));
+                item.setItemName(rs.getString("item_name"));
+                item.setPrice(rs.getBigDecimal("price"));
+                item.setStatus(rs.getString("status"));
+                return item;
+            }
+            return null;
         }
     }
 }

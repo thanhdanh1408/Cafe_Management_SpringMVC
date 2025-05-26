@@ -19,6 +19,7 @@ import com.example.cafemanhdu.model.OrderForm;
 import com.example.cafemanhdu.model.Table;
 import com.example.cafemanhdu.service.AdminService;
 import com.example.cafemanhdu.service.OrderService.OrderItem;
+import com.example.cafemanhdu.model.MenuItem;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -46,7 +47,7 @@ public class HomeController {
         try {
             if (orderService.validateQrCode(qrCode)) {
                 int tableId = orderService.getTableIdByQrCode(qrCode);
-                List<MenuItem> menuItems = orderService.getAvailableItems();
+                List<MenuItem> menuItems = orderService.getMenuItems();
                 model.addAttribute("tableId", tableId);
                 model.addAttribute("menuItems", menuItems);
                 model.addAttribute("qrCode", qrCode); // Lưu qrCode để quay lại
@@ -73,7 +74,7 @@ public class HomeController {
             if (selectedItems.isEmpty()) {
                 model.addAttribute("error", "Please select at least one item");
                 model.addAttribute("tableId", orderForm.getTableId());
-                model.addAttribute("menuItems", orderService.getAvailableItems());
+                model.addAttribute("menuItems", orderService.getMenuItems());
                 return "order";
             }
             orderService.submitOrder(orderForm.getTableId(), selectedItems, orderForm.getPaymentMethod(), orderForm.getComments());
@@ -83,7 +84,7 @@ public class HomeController {
             model.addAttribute("error", "Error submitting order: " + e.getMessage());
             model.addAttribute("tableId", orderForm.getTableId());
             try {
-                model.addAttribute("menuItems", orderService.getAvailableItems());
+                model.addAttribute("menuItems", orderService.getMenuItems());
             } catch (SQLException ex) {
                 model.addAttribute("error", "Error loading menu: " + ex.getMessage());
             }
@@ -92,18 +93,24 @@ public class HomeController {
     }
 
     @GetMapping("/admin")
-    public String adminDashboard(Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
-        try {
-            model.addAttribute("pendingOrders", adminService.getPendingOrders());
-            model.addAttribute("menuItems", adminService.getAllMenuItems());
-            model.addAttribute("tables", orderService.getAllTables());
-            model.addAttribute("orderHistory", orderService.getOrderHistory());
-            model.addAttribute("activeTab", tab);
-            return "adminDashboard";
-        } catch (SQLException e) {
-            model.addAttribute("error", "Error loading admin dashboard: " + e.getMessage());
-            return "index";
+    public String adminDashboard(@RequestParam(value = "activeTab", required = false) String activeTab, Model model) throws SQLException {
+        model.addAttribute("pendingOrders", adminService.getPendingOrders());
+        model.addAttribute("menuItems", adminService.getMenuItems());
+        model.addAttribute("tables", adminService.getTables());
+        model.addAttribute("orderHistory", adminService.getOrderHistory());
+        model.addAttribute("activeTab", activeTab != null ? activeTab : "pendingOrders");
+        return "adminDashboard";
+    }
+    
+    @GetMapping("/editMenuItem")
+    public String editMenuItem(@RequestParam("itemId") int itemId, Model model) throws SQLException {
+        MenuItem item = adminService.getMenuItemById(itemId);
+        if (item == null) {
+            model.addAttribute("error", "Item not found");
+            return "redirect:/admin?activeTab=menuManagement";
         }
+        model.addAttribute("item", item);
+        return "editMenuItem";
     }
 
     @PostMapping("/updateOrderStatus")
@@ -131,7 +138,7 @@ public class HomeController {
             model.addAttribute("error", "Error updating order: " + e.getMessage());
             try {
                 model.addAttribute("pendingOrders", adminService.getPendingOrders());
-                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("menuItems", adminService.getMenuItems());
                 model.addAttribute("tables", orderService.getAllTables());
                 model.addAttribute("orderHistory", orderService.getOrderHistory());
                 model.addAttribute("activeTab", "pendingOrders");
@@ -156,7 +163,7 @@ public class HomeController {
             model.addAttribute("error", "Error updating order history: " + e.getMessage());
             try {
                 model.addAttribute("pendingOrders", adminService.getPendingOrders());
-                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("menuItems", adminService.getMenuItems());
                 model.addAttribute("tables", orderService.getAllTables());
                 model.addAttribute("orderHistory", orderService.getOrderHistory());
                 model.addAttribute("activeTab", "orderHistory");
@@ -190,13 +197,14 @@ public class HomeController {
     }
 
     @PostMapping("/updateMenuItem")
-    public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
+    public String updateMenuItem(@ModelAttribute MenuItem item, Model model) throws SQLException {
         try {
-            adminService.updateMenuItem(itemId, itemName, price);
-            return "redirect:/admin?tab=menuManagement";
+            adminService.updateMenuItem(item);
+            return "redirect:/admin?activeTab=menuManagement";
         } catch (SQLException e) {
-            model.addAttribute("error", "Error updating menu item: " + e.getMessage());
-            return "adminDashboard";
+            model.addAttribute("error", "Error updating item: " + e.getMessage());
+            model.addAttribute("item", item);
+            return "editMenuItem";
         }
     }
 
@@ -231,7 +239,7 @@ public class HomeController {
             model.addAttribute("error", "Số bàn đã có, hãy chọn số khác");
             try {
                 model.addAttribute("pendingOrders", adminService.getPendingOrders());
-                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("menuItems", adminService.getMenuItems());
                 model.addAttribute("tables", orderService.getAllTables());
                 model.addAttribute("orderHistory", orderService.getOrderHistory());
                 model.addAttribute("activeTab", "tableManagement");
@@ -255,7 +263,7 @@ public class HomeController {
             model.addAttribute("error", "Error deleting table: " + e.getMessage());
             try {
                 model.addAttribute("pendingOrders", adminService.getPendingOrders());
-                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("menuItems", adminService.getMenuItems());
                 model.addAttribute("tables", orderService.getAllTables());
                 model.addAttribute("orderHistory", orderService.getOrderHistory());
                 model.addAttribute("activeTab", "tableManagement");

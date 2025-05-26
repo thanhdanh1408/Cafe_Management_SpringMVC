@@ -32,8 +32,8 @@ public class OrderService {
         return tablesDAO.getTableIdByQrCode(qrCode);
     }
 
-    public List<MenuItem> getAvailableItems() throws SQLException {
-        return menuItemsDAO.getAvailableItems();
+    public List<MenuItem> getMenuItems() throws SQLException {
+        return menuItemsDAO.getAllMenuItems();
     }
 
     public void submitOrder(int tableId, List<OrderItem> items, String paymentMethod, String comments) throws SQLException {

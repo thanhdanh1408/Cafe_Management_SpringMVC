@@ -27,7 +27,7 @@
     </script>
 </head>
 <body>
-    <h1>Admin Dashboard <a href="/CafeManagement/"><button class="logout-btn">Thoát</button></a></h1>
+    <h1>Admin Dashboard <a href="${pageContext.request.contextPath}/"><button class="logout-btn">Thoát</button></a></h1>
     <div class="tab">
         <button class="tablinks" onclick="openTab(event, 'pendingOrders')">Pending Orders</button>
         <button class="tablinks" onclick="openTab(event, 'menuManagement')">Menu Management</button>
@@ -96,23 +96,9 @@
                     <td>${item.price}</td>
                     <td>${item.status}</td>
                     <td>
-                        <form action="updateMenuItem" method="post" style="display:inline;">
+                        <form action="editMenuItem" method="get">
                             <input type="hidden" name="itemId" value="${item.itemId}">
-                            <input type="text" name="itemName" value="${item.itemName}" required>
-                            <input type="number" name="price" step="0.01" value="${item.price}" required>
-                            <button type="submit">Update</button>
-                        </form>
-                        <form action="deleteMenuItem" method="post" style="display:inline;">
-                            <input type="hidden" name="itemId" value="${item.itemId}">
-                            <button type="submit">Delete</button>
-                        </form>
-                        <form action="updateItemStatus" method="post" style="display:inline;">
-                            <input type="hidden" name="itemId" value="${item.itemId}">
-                            <select name="status">
-                                <option value="available" ${item.status == 'available' ? 'selected' : ''}>Available</option>
-                                <option value="unavailable" ${item.status == 'unavailable' ? 'selected' : ''}>Unavailable</option>
-                            </select>
-                            <button type="submit">Update Status</button>
+                            <button type="submit">Edit</button>
                         </form>
                     </td>
                 </tr>
@@ -139,7 +125,7 @@
                     <td>${table.tableId}</td>
                     <td>${table.tableNumber}</td>
                     <td>
-                        <img src="/CafeManagement/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}" style="max-width: 100px;">
+                        <img src="${pageContext.request.contextPath}/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}" style="max-width: 100px;">
                     </td>
                     <td>${table.status}</td>
                     <td>

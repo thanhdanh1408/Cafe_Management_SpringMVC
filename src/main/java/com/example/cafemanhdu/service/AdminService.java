@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
 import com.example.cafemanhdu.dao.OrdersDAO;
+import com.example.cafemanhdu.dao.TablesDAO;
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.MenuItem;
+import com.example.cafemanhdu.model.Table;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -16,14 +18,30 @@ public class AdminService {
     private MenuItemsDAO menuItemsDAO;
     @Autowired
     private OrdersDAO ordersDAO;
+    @Autowired
+    private TablesDAO tablesDAO;
+    
 
-    public List<MenuItem> getAllMenuItems() throws SQLException {
-        return menuItemsDAO.getAvailableItems();
+    public List<MenuItem> getMenuItems() throws SQLException {
+        return menuItemsDAO.getAllMenuItems();
+    }
+    
+    public MenuItem getMenuItemById(int itemId) throws SQLException {
+        return menuItemsDAO.getMenuItemById(itemId);
+    }
+    
+    public List<Table> getTables() throws SQLException {
+        return tablesDAO.getAllTables();
+    }
+    
+    public List<Order> getOrderHistory() throws SQLException {
+        return ordersDAO.getOrdersByStatusNot("pending");
     }
 
     public List<Order> getPendingOrders() throws SQLException {
-        return ordersDAO.getPendingOrders();
+    	return ordersDAO.getOrdersByStatus("pending");
     }
+   
 
     public void updateOrderStatus(int orderId, String status) throws SQLException {
         ordersDAO.updateOrderStatus(orderId, status);
@@ -38,8 +56,8 @@ public class AdminService {
         menuItemsDAO.createMenuItem(itemName, price);
     }
 
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
-        menuItemsDAO.updateMenuItem(itemId, itemName, price);
+    public void updateMenuItem(MenuItem item) throws SQLException {
+        menuItemsDAO.updateMenuItem(item);
     }
 
     public void deleteMenuItem(int itemId) throws SQLException {

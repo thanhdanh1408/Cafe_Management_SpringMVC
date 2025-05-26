@@ -17,6 +17,14 @@ import java.util.List;
 public class OrdersDAO {
     @Autowired
     private DataSource dataSource;
+    
+    public OrdersDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+    
+    private Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
     public int createOrder(int tableId, String paymentMethod, java.math.BigDecimal totalAmount, String comments) throws SQLException {
         String sql = "INSERT INTO orders (table_id, payment_method, total_amount, comments, status) VALUES (?, ?, ?, ?, 'pending')";
@@ -133,5 +141,53 @@ public class OrdersDAO {
         } catch (SQLException e) {
             throw new SQLException("Error deleting order: " + e.getMessage());
         }
+    }
+    
+    public List<Order> getOrdersByStatus(String status) throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status != 'pending'";
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setOrderId(rs.getInt("order_id"));
+                    order.setTableId(rs.getInt("table_id"));
+                    order.setTableNumber(rs.getString("table_number"));
+                    order.setOrderTime(rs.getTimestamp("order_time"));
+                    order.setPaymentMethod(rs.getString("payment_method"));
+                    order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                    order.setComments(rs.getString("comments"));
+                    order.setStatus(rs.getString("status"));
+                    orders.add(order);
+                }
+            }
+        
+        return orders;
+    }
+    
+    public List<Order> getOrdersByStatusNot(String status) throws SQLException {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status != 'pending'";
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setOrderId(rs.getInt("order_id"));
+                    order.setTableId(rs.getInt("table_id"));
+                    order.setTableNumber(rs.getString("table_number"));
+                    order.setOrderTime(rs.getTimestamp("order_time"));
+                    order.setPaymentMethod(rs.getString("payment_method"));
+                    order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                    order.setComments(rs.getString("comments"));
+                    order.setStatus(rs.getString("status"));
+                    orders.add(order);
+                }
+            }
+        
+        return orders;
     }
 }
