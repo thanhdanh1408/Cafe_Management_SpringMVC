@@ -4,17 +4,7 @@
 <html>
 <head>
     <title>Place Order</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .error { color: red; }
-        .message { color: green; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        input[type="number"] { width: 60px; }
-        button { padding: 5px 10px; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user-style.css">
 </head>
 <body>
     <div class="container">
@@ -41,14 +31,14 @@
                     </tr>
                 </c:forEach>
             </table>
-            <div style="margin-top: 20px;">
+            <div class="form-group">
                 <label>Payment Method:</label>
                 <select name="paymentMethod">
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
                 </select>
                 <label>Comments:</label>
-                <input type="text" name="comments">
+                <input type="text" name="comments" placeholder="Enter comments">
                 <button type="submit">Submit Order</button>
             </div>
         </form>

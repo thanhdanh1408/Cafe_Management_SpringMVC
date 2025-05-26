@@ -4,24 +4,7 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .tab { overflow: hidden; border-bottom: 1px solid #ccc; }
-        .tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; }
-        .tab button:hover { background-color: #ddd; }
-        .tab button.active { background-color: #4CAF50; color: white; }
-        .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; border-top: none; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 10px; border: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .form-container { margin-bottom: 20px; }
-        .empty-message { color: #888; font-style: italic; }
-        .error-message { color: red; margin-bottom: 10px; }
-        input[type="text"], select { padding: 5px; margin-right: 5px; }
-        button { padding: 5px 10px; cursor: pointer; }
-        .logout-btn { float: right; padding: 10px 20px; background-color: #ff4444; color: white; border: none; cursor: pointer; }
-        .logout-btn:hover { background-color: #cc0000; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-style.css">
     <script>
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
@@ -156,7 +139,7 @@
                     <td>${table.tableId}</td>
                     <td>${table.tableNumber}</td>
                     <td>
-                        <img src="/CafeManagement/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}">
+                        <img src="/CafeManagement/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}" style="max-width: 100px;">
                     </td>
                     <td>${table.status}</td>
                     <td>

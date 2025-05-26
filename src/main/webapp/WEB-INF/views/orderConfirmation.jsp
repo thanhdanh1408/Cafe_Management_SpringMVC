@@ -4,12 +4,7 @@
 <html>
 <head>
     <title>Order Confirmation</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 600px; margin: 0 auto; text-align: center; }
-        .message { color: green; font-size: 18px; }
-        button { padding: 10px 20px; margin-top: 20px; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user-style.css">
 </head>
 <body>
     <div class="container">

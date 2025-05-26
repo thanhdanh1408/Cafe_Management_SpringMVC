@@ -2,29 +2,30 @@ package com.example.cafemanhdu.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+
+@Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "com.example.cafemanhdu")
 public class WebAppConfig implements WebMvcConfigurer {
+	@Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/css/**")
+                .addResourceLocations("/WEB-INF/css/")
+                .setCachePeriod(0); // Tắt cache để debug
+    }
+
     @Bean
-    public InternalResourceViewResolver viewResolver() {
+    public ViewResolver viewResolver() {
         InternalResourceViewResolver resolver = new InternalResourceViewResolver();
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setSuffix(".jsp");
         return resolver;
-    }
-
-    @Override
-    public void configureViewResolvers(ViewResolverRegistry registry) {
-        registry.viewResolver(viewResolver());
-    }
-
-    @Bean
-    public org.springframework.validation.Validator validator() {
-        return null; // Disable Bean Validation
     }
 }
