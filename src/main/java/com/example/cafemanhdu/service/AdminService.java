@@ -1,5 +1,6 @@
 package com.example.cafemanhdu.service;
 
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
@@ -73,3 +74,17 @@ public class AdminService {
     }
 
 }
+=======
+import java.util.List;
+
+import com.example.cafemanhdu.model.Admin;
+
+public interface AdminService {
+	Admin getAdminById(int id);
+    Admin getAdminByUsername(String username);
+    List<Admin> getAllAdmins();
+    void createAdmin(Admin admin);
+    void updateAdmin(Admin admin);
+    void deleteAdmin(int id);
+}
+>>>>>>> f2a4927b00b77d5f82f6fa9690eaaac0fb87e360
