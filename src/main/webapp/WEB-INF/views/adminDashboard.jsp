@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,15 +13,79 @@
         .tab button.active { background-color: #4CAF50; color: white; }
         .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; border-top: none; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 10px; border: 1px solid #ddd; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
         th { background-color: #f2f2f2; }
         .form-container { margin-bottom: 20px; }
         .empty-message { color: #888; font-style: italic; }
         .error-message { color: red; margin-bottom: 10px; }
-        input[type="text"], select { padding: 5px; margin-right: 5px; }
+        input[type="text"], select, input[type="date"] { padding: 5px; margin-right: 5px; }
         button { padding: 5px 10px; cursor: pointer; }
         .logout-btn { float: right; padding: 10px 20px; background-color: #ff4444; color: white; border: none; cursor: pointer; }
         .logout-btn:hover { background-color: #cc0000; }
+        
+        /* Sales Stats Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .filter-container {
+            margin: 25px 0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .filter-container select, .filter-container input[type="date"] {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .stat-title {
+            color: #4CAF50;
+            margin: 0;
+        }
+        
+        .chart-container {
+            margin-top: 30px;
+            height: 400px;
+        }
+        
+        .order-details {
+            margin-top: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .order-details h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
     </style>
     <script>
         function openTab(evt, tabName) {
@@ -36,9 +101,30 @@
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
         }
+        
+        function toggleDateInput() {
+            var period = document.getElementById('periodSelect').value;
+            var dateInput = document.getElementById('dateInput');
+            dateInput.style.display = period === 'custom' ? 'inline-block' : 'none';
+        }
+        
+        document.getElementById('dateInput').addEventListener('change', function() {
+            if (document.getElementById('periodSelect').value === 'custom') {
+                document.getElementById('statsForm').submit();
+            }
+        });
+        
+        document.getElementById('periodSelect').addEventListener('change', function() {
+            toggleDateInput();
+            document.getElementById('statsForm').submit();
+        });
+        
         window.onload = function() {
+            toggleDateInput();
             var activeTab = "${activeTab}";
-            var tabToOpen = activeTab ? activeTab : "pendingOrders";
+            var urlParams = new URLSearchParams(window.location.search);
+            var tabToOpen = activeTab ? activeTab : 
+                urlParams.has('period') ? "salesStats" : "pendingOrders";
             document.querySelector("[onclick*='" + tabToOpen + "']").click();
         };
     </script>
@@ -50,6 +136,7 @@
         <button class="tablinks" onclick="openTab(event, 'menuManagement')">Menu Management</button>
         <button class="tablinks" onclick="openTab(event, 'tableManagement')">Table Management</button>
         <button class="tablinks" onclick="openTab(event, 'orderHistory')">Order History</button>
+        <button class="tablinks" onclick="openTab(event, 'salesStats')">Sales Statistics</button>
     </div>
 
     <div id="pendingOrders" class="tabcontent">
@@ -79,7 +166,7 @@
                                 <button type="submit">Update</button>
                             </form>
                         </td>
-                        <td>${order.totalAmount}</td>
+                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency"/></td>
                         <td>${order.comments}</td>
                         <td>${order.status}</td>
                         <td>
@@ -110,7 +197,7 @@
                 <tr>
                     <td>${item.itemId}</td>
                     <td>${item.itemName}</td>
-                    <td>${item.price}</td>
+                    <td><fmt:formatNumber value="${item.price}" type="currency"/></td>
                     <td>${item.status}</td>
                     <td>
                         <form action="updateMenuItem" method="post" style="display:inline;">
@@ -156,7 +243,7 @@
                     <td>${table.tableId}</td>
                     <td>${table.tableNumber}</td>
                     <td>
-                        <img src="/CafeManagement/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}">
+                        <img src="/CafeManagement/generateQr?qrCode=${table.qrCode}" alt="QR Code for ${table.tableNumber}" width="100">
                     </td>
                     <td>${table.status}</td>
                     <td>
@@ -196,7 +283,7 @@
                                 <button type="submit">Update</button>
                             </form>
                         </td>
-                        <td>${order.totalAmount}</td>
+                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency"/></td>
                         <td>${order.comments}</td>
                         <td>${order.status}</td>
                         <td>
@@ -210,5 +297,97 @@
             </table>
         </c:if>
     </div>
+
+    <div id="salesStats" class="tabcontent">
+        <h2>Thống kê doanh thu</h2>
+        
+        <div class="filter-container">
+            <form action="salesStats" method="get" id="statsForm">
+                <select name="period" id="periodSelect">
+                    <option value="today" ${period == 'today' ? 'selected' : ''}>Hôm nay</option>
+                    <option value="week" ${period == 'week' ? 'selected' : ''}>Tuần này</option>
+                    <option value="month" ${period == 'month' ? 'selected' : ''}>Tháng này</option>
+                    <option value="custom" ${period == 'custom' ? 'selected' : ''}>Tùy chỉnh</option>
+                </select>
+                <input type="date" name="selectedDate" id="dateInput" value="${selectedDate}" style="display: ${period == 'custom' ? 'inline-block' : 'none'}; margin-left: 10px;">
+            </form>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 class="stat-title">Tổng doanh thu</h3>
+                <p class="stat-value">
+                    <c:if test="${not empty stats.totalRevenue}">
+                        <fmt:formatNumber value="${stats.totalRevenue}" type="currency" currencyCode="VND"/>
+                    </c:if>
+                    <c:if test="${empty stats.totalRevenue}">0 ₫</c:if>
+                </p>
+            </div>
+            
+            <div class="stat-card">
+                <h3 class="stat-title">Số đơn hàng</h3>
+                <p class="stat-value">${not empty stats.orderCount ? stats.orderCount : 0}</p>
+            </div>
+        </div>
+
+        <div class="order-details">
+            <h3>Chi tiết đơn hàng</h3>
+            <c:if test="${empty stats.orders}">
+                <p class="empty-message">Không có đơn hàng nào trong khoảng thời gian này.</p>
+            </c:if>
+            <c:if test="${not empty stats.orders}">
+                <table>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Thời gian</th>
+                        <th>Bàn</th>
+                        <th>Phương thức thanh toán</th>
+                        <th>Tổng tiền</th>
+                        <th>Ghi chú</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    <c:forEach var="order" items="${stats.orders}">
+                        <tr>
+                            <td>${order.orderId}</td>
+                            <td><fmt:formatDate value="${order.orderTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                            <td>${order.tableNumber}</td>
+                            <td>${order.paymentMethod}</td>
+                            <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencyCode="VND"/></td>
+                            <td>${order.comments}</td>
+                            <td>${order.status}</td>
+                        </tr>
+                    </c:forEach>
+                </table>
+            </c:if>
+        </div>
+    </div>
+
+    <script>
+        function toggleDateInput() {
+            var period = document.getElementById('periodSelect').value;
+            var dateInput = document.getElementById('dateInput');
+            dateInput.style.display = period === 'custom' ? 'inline-block' : 'none';
+        }
+
+        document.getElementById('dateInput').addEventListener('change', function() {
+            if (document.getElementById('periodSelect').value === 'custom') {
+                document.getElementById('statsForm').submit();
+            }
+        });
+
+        document.getElementById('periodSelect').addEventListener('change', function() {
+            toggleDateInput();
+            document.getElementById('statsForm').submit();
+        });
+
+        window.onload = function() {
+            toggleDateInput();
+            var activeTab = "${activeTab}";
+            var urlParams = new URLSearchParams(window.location.search);
+            var tabToOpen = activeTab ? activeTab : 
+                urlParams.has('period') ? "salesStats" : "pendingOrders";
+            document.querySelector("[onclick*='" + tabToOpen + "']").click();
+        };
+    </script>
 </body>
 </html>

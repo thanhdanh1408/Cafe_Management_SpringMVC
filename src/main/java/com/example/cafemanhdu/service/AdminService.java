@@ -7,8 +7,12 @@ import com.example.cafemanhdu.dao.OrdersDAO;
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.MenuItem;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
@@ -52,6 +56,20 @@ public class AdminService {
     //Xóa order
     public void deleteOrder(int orderId) throws SQLException {
         ordersDAO.deleteOrder(orderId);
+    }
+    
+    //Phương thức doanh thu
+    public Map<String, Object> getSalesStatistics(Date startDate, Date endDate) throws SQLException {
+        Map<String, Object> stats = new HashMap<>();
+        BigDecimal totalRevenue = ordersDAO.getTotalRevenue(startDate, endDate);
+        int orderCount = ordersDAO.getNumberOfOrders(startDate, endDate);
+        List<Order> orders = ordersDAO.getCompletedOrders(startDate, endDate);
+        
+        stats.put("totalRevenue", totalRevenue);
+        stats.put("orderCount", orderCount);
+        stats.put("orders", orders);
+        
+        return stats;
     }
 
 }

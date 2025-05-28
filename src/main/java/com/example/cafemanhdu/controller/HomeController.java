@@ -22,8 +22,14 @@ import com.example.cafemanhdu.service.OrderService.OrderItem;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 @Controller
 public class HomeController {
@@ -264,5 +270,107 @@ public class HomeController {
             }
             return "adminDashboard";
         }
+    }
+    
+    @PostMapping("/deleteOrderHistory")
+    public String deleteOrderHistory(
+        @RequestParam("orderId") int orderId,
+        Model model) throws SQLException {
+        
+        adminService.deleteOrder(orderId);
+        return "redirect:/admin?tab=orderHistory"; // Chuyển hướng lại tab history
+    }
+    
+    //Xem doanh thu
+    @GetMapping("/salesStats")
+    public String salesStats(
+        @RequestParam(value = "period", defaultValue = "today") String period,
+        @RequestParam(value = "selectedDate", required = false) String selectedDate,
+        Model model) throws SQLException {
+        
+        Date[] dateRange = calculateDateRange(period, selectedDate);
+        System.out.println("Thống kê từ: " + dateRange[0] + " đến " + dateRange[1]);
+        
+        java.sql.Date sqlStartDate = new java.sql.Date(dateRange[0].getTime());
+        java.sql.Date sqlEndDate = new java.sql.Date(dateRange[1].getTime());
+        
+        Map<String, Object> stats = adminService.getSalesStatistics(sqlStartDate, sqlEndDate);
+        System.out.println("Kết quả thống kê: " + stats);
+        
+        // Đặt tất cả attributes
+        model.addAttribute("stats", stats);
+        model.addAttribute("period", period);
+        model.addAttribute("selectedDate", selectedDate);
+        model.addAttribute("activeTab", "salesStats");
+        model.addAttribute("pendingOrders", orderService.getPendingOrders());
+        model.addAttribute("menuItems", adminService.getAllMenuItems());
+        model.addAttribute("tables", orderService.getAllTables());
+        model.addAttribute("orderHistory", orderService.getOrderHistory());
+        
+        return "adminDashboard";
+    }
+    
+    //Xem ngày khi thống kê
+    private Date[] calculateDateRange(String period, String selectedDate) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        Date endDate = new Date();
+        
+        // Đặt endDate thành cuối ngày hiện tại (23:59:59)
+        calendar.setTime(endDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        endDate = calendar.getTime();
+        
+        // Đặt startDate
+        calendar.setTime(endDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        
+        switch (period.toLowerCase()) {
+            case "today":
+                break;
+            case "week":
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                break;
+            case "month":
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                break;
+            case "year":
+                calendar.set(Calendar.DAY_OF_YEAR, 1);
+                break;
+            case "custom":
+                if (selectedDate != null && !selectedDate.isEmpty()) {
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        Date customDate = sdf.parse(selectedDate);
+                        calendar.setTime(customDate);
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
+                        calendar.set(Calendar.MINUTE, 0);
+                        calendar.set(Calendar.SECOND, 0);
+                        calendar.set(Calendar.MILLISECOND, 0);
+                        Date startDate = calendar.getTime(); // Lưu startDate
+                        
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
+                        calendar.set(Calendar.MINUTE, 59);
+                        calendar.set(Calendar.SECOND, 59);
+                        calendar.set(Calendar.MILLISECOND, 999);
+                        endDate = calendar.getTime(); // Cập nhật endDate
+                        
+                        return new Date[] { startDate, endDate };
+                    } catch (ParseException e) {
+                        System.err.println("Error parsing selectedDate: " + e.getMessage());
+                        // Fallback to today
+                    }
+                }
+                break;
+        }
+        
+        Date startDate = calendar.getTime();
+        return new Date[] { startDate, endDate };
     }
 }
