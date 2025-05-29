@@ -1,6 +1,5 @@
 package com.example.cafemanhdu.service;
 
-<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
@@ -107,17 +106,4 @@ public class OrderService {
         public int getQuantity() { return quantity; }
     }
 }
-=======
-import java.util.List;
 
-import com.example.cafemanhdu.model.Order;
-
-public interface OrderService {
-	Order getOrderById(int id);
-    List<Order> getOrdersByTableId(int tableId);
-    List<Order> getAllOrders();
-    void createOrder(Order order);
-    void updateOrder(Order order);
-    void deleteOrder(int id);
-}
->>>>>>> f2a4927b00b77d5f82f6fa9690eaaac0fb87e360

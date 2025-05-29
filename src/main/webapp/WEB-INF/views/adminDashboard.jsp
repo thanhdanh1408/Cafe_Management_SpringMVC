@@ -151,7 +151,11 @@
                     <tr>
                         <td>${order.orderId}</td>
                         <td>${order.tableNumber}</td>
-                        <td>${order.orderTime}</td>
+                        <td>
+                            <fmt:timeZone value="Asia/Ho_Chi_Minh">
+                                <fmt:formatDate value="${order.orderTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                            </fmt:timeZone>
+                        </td>
                         <td>
                             <form action="updatePendingOrder" method="post" style="display:inline;">
                                 <input type="hidden" name="orderId" value="${order.orderId}">
@@ -166,7 +170,7 @@
                                 <button type="submit">Update</button>
                             </form>
                         </td>
-                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency"/></td>
+                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencyCode="VND"/></td>
                         <td>${order.comments}</td>
                         <td>${order.status}</td>
                         <td>
@@ -197,7 +201,7 @@
                 <tr>
                     <td>${item.itemId}</td>
                     <td>${item.itemName}</td>
-                    <td><fmt:formatNumber value="${item.price}" type="currency"/></td>
+                    <td><fmt:formatNumber value="${item.price}" type="currency" currencyCode="VND"/></td>
                     <td>${item.status}</td>
                     <td>
                         <form action="updateMenuItem" method="post" style="display:inline;">
@@ -269,7 +273,11 @@
                     <tr>
                         <td>${order.orderId}</td>
                         <td>${order.tableNumber}</td>
-                        <td>${order.orderTime}</td>
+                        <td>
+                            <fmt:timeZone value="Asia/Ho_Chi_Minh">
+                                <fmt:formatDate value="${order.orderTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                            </fmt:timeZone>
+                        </td>
                         <td>
                             <form action="updateOrderHistory" method="post" style="display:inline;">
                                 <input type="hidden" name="orderId" value="${order.orderId}">
@@ -283,7 +291,7 @@
                                 <button type="submit">Update</button>
                             </form>
                         </td>
-                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency"/></td>
+                        <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencyCode="VND"/></td>
                         <td>${order.comments}</td>
                         <td>${order.status}</td>
                         <td>
@@ -349,7 +357,11 @@
                     <c:forEach var="order" items="${stats.orders}">
                         <tr>
                             <td>${order.orderId}</td>
-                            <td><fmt:formatDate value="${order.orderTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                            <td>
+                                <fmt:timeZone value="Asia/Ho_Chi_Minh">
+                                    <fmt:formatDate value="${order.orderTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                                </fmt:timeZone>
+                            </td>
                             <td>${order.tableNumber}</td>
                             <td>${order.paymentMethod}</td>
                             <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencyCode="VND"/></td>

@@ -15,7 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 @Repository
 public class OrdersDAO {
@@ -53,49 +55,56 @@ public class OrdersDAO {
             stmt.executeBatch();
         }
     }
-
     public List<Order> getPendingOrders() throws SQLException {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
-                    "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status = 'pending'";
+        String sql = "SELECT o.order_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                     "FROM orders o JOIN tables t ON o.table_id = t.table_id " +
+                     "WHERE o.status = 'pending'";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
-                order.setTableId(rs.getInt("table_id"));
                 order.setTableNumber(rs.getString("table_number"));
-                order.setOrderTime(rs.getTimestamp("order_time"));
+                order.setOrderTime(rs.getTimestamp("order_time", Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"))));
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setTotalAmount(rs.getBigDecimal("total_amount"));
                 order.setComments(rs.getString("comments"));
                 order.setStatus(rs.getString("status"));
                 orders.add(order);
+                System.out.println("Fetched pending order: ID=" + order.getOrderId() + ", Table=" + order.getTableNumber() + ", Time=" + order.getOrderTime());
             }
+        } catch (SQLException e) {
+            System.err.println("Error in getPendingOrders: " + e.getMessage());
+            throw e;
         }
         return orders;
     }
 
     public List<Order> getOrderHistory() throws SQLException {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
-                    "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.status != 'pending'";
+        String sql = "SELECT o.order_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                     "FROM orders o JOIN tables t ON o.table_id = t.table_id " +
+                     "WHERE o.status IN ('preparing', 'completed', 'cancelled')";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
-                order.setTableId(rs.getInt("table_id"));
                 order.setTableNumber(rs.getString("table_number"));
-                order.setOrderTime(rs.getTimestamp("order_time"));
+                order.setOrderTime(rs.getTimestamp("order_time", Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"))));
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setTotalAmount(rs.getBigDecimal("total_amount"));
                 order.setComments(rs.getString("comments"));
                 order.setStatus(rs.getString("status"));
                 orders.add(order);
+                System.out.println("Fetched history order: ID=" + order.getOrderId() + ", Table=" + order.getTableNumber() + ", Time=" + order.getOrderTime());
             }
+        } catch (SQLException e) {
+            System.err.println("Error in getOrderHistory: " + e.getMessage());
+            throw e;
         }
         return orders;
     }
@@ -141,38 +150,33 @@ public class OrdersDAO {
     
     //Xem số đơn hàng khi thống kê
     public int getNumberOfOrders(Date startDate, Date endDate) throws SQLException {
-        String sql = "SELECT order_id, order_time FROM orders WHERE status = 'completed' AND order_time BETWEEN ? AND ?";
+        String sql = "SELECT COUNT(*) FROM orders WHERE status = 'completed' AND order_time BETWEEN ? AND ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setTimestamp(1, new Timestamp(startDate.getTime()));
-            stmt.setTimestamp(2, new Timestamp(endDate.getTime()));
+            stmt.setTimestamp(1, new Timestamp(startDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
+            stmt.setTimestamp(2, new Timestamp(endDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
             ResultSet rs = stmt.executeQuery();
-            int count = 0;
-            System.out.println("Orders for period " + startDate + " to " + endDate + ":");
-            while (rs.next()) {
-                count++;
-                System.out.println("Order ID: " + rs.getInt("order_id") + ", Order Time: " + rs.getTimestamp("order_time"));
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-            System.out.println("Order count: " + count + " for period " + startDate + " to " + endDate);
-            return count;
         } catch (SQLException e) {
             System.err.println("Error in getNumberOfOrders: " + e.getMessage());
             throw e;
         }
+        return 0;
     }
+
     
     //Xem tổng doanh thu
     public BigDecimal getTotalRevenue(Date startDate, Date endDate) throws SQLException {
         String sql = "SELECT SUM(total_amount) FROM orders WHERE status = 'completed' AND order_time BETWEEN ? AND ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setTimestamp(1, new Timestamp(startDate.getTime()));
-            stmt.setTimestamp(2, new Timestamp(endDate.getTime()));
+            stmt.setTimestamp(1, new Timestamp(startDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
+            stmt.setTimestamp(2, new Timestamp(endDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                BigDecimal revenue = rs.getBigDecimal(1);
-                System.out.println("Total revenue: " + revenue);
-                return revenue != null ? revenue : BigDecimal.ZERO;
+                return rs.getBigDecimal(1) != null ? rs.getBigDecimal(1) : BigDecimal.ZERO;
             }
         } catch (SQLException e) {
             System.err.println("Error in getTotalRevenue: " + e.getMessage());
@@ -189,14 +193,14 @@ public class OrdersDAO {
                      "WHERE o.status = 'completed' AND o.order_time BETWEEN ? AND ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setTimestamp(1, new Timestamp(startDate.getTime()));
-            stmt.setTimestamp(2, new Timestamp(endDate.getTime()));
+            stmt.setTimestamp(1, new Timestamp(startDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
+            stmt.setTimestamp(2, new Timestamp(endDate.getTime()), Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")));
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("order_id"));
                 order.setTableNumber(rs.getString("table_number"));
-                order.setOrderTime(rs.getTimestamp("order_time"));
+                order.setOrderTime(rs.getTimestamp("order_time", Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"))));
                 order.setPaymentMethod(rs.getString("payment_method"));
                 order.setTotalAmount(rs.getBigDecimal("total_amount"));
                 order.setComments(rs.getString("comments"));

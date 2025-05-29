@@ -25,7 +25,7 @@ public class QrCodeServlet extends HttpServlet {
             return;
         }
 
-        String qrCodeText = " https://a095-2405-4802-b275-6630-5cbc-3b28-7857-6735.ngrok-free.app/CafeManagement/scanQr?qrCode=" + qrCode;
+        String qrCodeText = " https://a7c8-2405-4802-b275-6630-38a0-693-f50d-ca07.ngrok-free.app/CafeManagement/scanQr?qrCode=" + qrCode;
         int size = 150; // Kích thước
         response.setContentType("image/png");
         OutputStream outputStream = response.getOutputStream();
