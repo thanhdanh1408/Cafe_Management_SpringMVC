@@ -86,6 +86,22 @@ public class OrderService {
     public List<Order> getOrderHistory() throws SQLException {
         return ordersDAO.getOrderHistory();
     }
+    
+    public BigDecimal calculateDailyRevenue() throws SQLException {
+        return ordersDAO.calculateDailyRevenue();
+    }
+
+    public BigDecimal calculateWeeklyRevenue() throws SQLException {
+        return ordersDAO.calculateWeeklyRevenue();
+    }
+
+    public BigDecimal calculateMonthlyRevenue() throws SQLException {
+        return ordersDAO.calculateMonthlyRevenue();
+    }
+
+    public BigDecimal calculateYearlyRevenue() throws SQLException {
+        return ordersDAO.calculateYearlyRevenue();
+    }
 
     public static class OrderItem {
         private int itemId;

@@ -181,68 +181,74 @@ button {
 			Management</button>
 		<button class="tablinks" onclick="openTab(event, 'orderHistory')">Order
 			History</button>
+		<button class="tablinks" onclick="openTab(event, 'revenueStatistics')">Revenue
+			Statistics</button>
 	</div>
 
 	<div id="pendingOrders" class="tabcontent">
-    <h2>Pending Orders</h2>
-    <c:if test="${empty pendingOrders}">
-        <p class="empty-message">No pending orders available.</p>
-    </c:if>
-    <c:if test="${not empty pendingOrders}">
-        <table>
-            <tr>
-                <th>Order ID</th>
-                <th>Table</th>
-                <th>Time</th>
-                <th>Payment Method</th>
-                <th>Total Amount</th>
-                <th>Comments</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-            <c:forEach var="order" items="${pendingOrders}">
-                <tr>
-                    <td>${order.orderId}</td>
-                    <td>${order.tableNumber}</td>
-                    <td>${order.orderTime}</td>
-                    <td>${order.paymentMethod}</td> <!-- Hiển thị tĩnh -->
-                    <td>${order.totalAmount}</td>
-                    <td>${order.comments}</td>
-                    <td>${order.status}</td>
-                    <td>
-                        <button onclick="toggleEditForm(${order.orderId})">Edit</button>
-                        <form action="deleteOrder" method="post" style="display: inline;">
-                            <input type="hidden" name="orderId" value="${order.orderId}">
-                            <button type="submit">Delete</button>
-                        </form>
-                        <div id="editForm-${order.orderId}" class="edit-form">
-                            <form action="updatePendingOrder" method="post">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <label>Payment Method:</label>
-                                <select name="paymentMethod">
-                                	<option value="cash" ${order.paymentMethod == 'cash' ? 'selected' : ''}>Tiền mặt</option>
-                                	<option value="card" ${order.paymentMethod == 'Chuyển khoản' ? 'selected' : ''}>Chuyển khoản</option>
-                                </select>
-                                <br>
-                                <label>Comments:</label>
-                                <input type="text" name="comments" value="${order.comments}">
-                                <br>
-                                <label>Status:</label>
-                                <select name="status">
-                                    <option value="pending" ${order.status == 'pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="preparing" ${order.status == 'preparing' ? 'selected' : ''}>Preparing</option>
-                                    <option value="completed" ${order.status == 'completed' ? 'selected' : ''}>Completed</option>
-                                    <option value="cancelled" ${order.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                </select>
-                                <button type="submit">Save</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </c:forEach>
-        </table>
-    </c:if>
-</div>
+		<h2>Pending Orders</h2>
+		<c:if test="${empty pendingOrders}">
+			<p class="empty-message">No pending orders available.</p>
+		</c:if>
+		<c:if test="${not empty pendingOrders}">
+			<table>
+				<tr>
+					<th>Order ID</th>
+					<th>Table</th>
+					<th>Time</th>
+					<th>Payment Method</th>
+					<th>Total Amount</th>
+					<th>Comments</th>
+					<th>Status</th>
+					<th>Action</th>
+				</tr>
+				<c:forEach var="order" items="${pendingOrders}">
+					<tr>
+						<td>${order.orderId}</td>
+						<td>${order.tableNumber}</td>
+						<td>${order.orderTime}</td>
+						<td>${order.paymentMethod}</td>
+						<!-- Hiển thị tĩnh -->
+						<td>${order.totalAmount}</td>
+						<td>${order.comments}</td>
+						<td>${order.status}</td>
+						<td>
+							<button onclick="toggleEditForm(${order.orderId})">Edit</button>
+							<form action="deleteOrder" method="post" style="display: inline;">
+								<input type="hidden" name="orderId" value="${order.orderId}">
+								<button type="submit">Delete</button>
+							</form>
+							<div id="editForm-${order.orderId}" class="edit-form">
+								<form action="updatePendingOrder" method="post">
+									<input type="hidden" name="orderId" value="${order.orderId}">
+									<label>Payment Method:</label> <select name="paymentMethod">
+										<option value="cash"
+											${order.paymentMethod == 'cash' ? 'selected' : ''}>Tiền
+											mặt</option>
+										<option value="card"
+											${order.paymentMethod == 'Chuyển khoản' ? 'selected' : ''}>Chuyển
+											khoản</option>
+									</select> <br> <label>Comments:</label> <input type="text"
+										name="comments" value="${order.comments}"> <br> <label>Status:</label>
+									<select name="status">
+										<option value="pending"
+											${order.status == 'pending' ? 'selected' : ''}>Pending</option>
+										<option value="preparing"
+											${order.status == 'preparing' ? 'selected' : ''}>Preparing</option>
+										<option value="completed"
+											${order.status == 'completed' ? 'selected' : ''}>Completed</option>
+										<option value="cancelled"
+											${order.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
+									</select>
+									<button type="submit">Save</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</c:if>
+	</div>
 
 	<div id="menuManagement" class="tabcontent">
 		<h2>Menu Management</h2>
@@ -376,44 +382,77 @@ button {
 			</table>
 		</c:if>
 	</div>
-	
-<%-- 	<div id="revenueStatistics" class="tabcontent">
-        <h2>Revenue Statistics</h2>
-        <div>
-            <label for="periodFilter">Select Period:</label>
-            <select id="periodFilter" onchange="updateChart()">
-                <option value="all">All</option>
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-            </select>
-        </div>
-        <div class="chart-container">
-            <canvas id="revenueChart"></canvas>
-        </div>
-        <table>
-            <tr>
-                <th>Period</th>
-                <th>Revenue (VND)</th>
-            </tr>
-            <tr>
-                <td>Daily</td>
-                <td><c:out value="${dailyRevenue}"/> VND</td>
-            </tr>
-            <tr>
-                <td>Weekly</td>
-                <td><c:out value="${weeklyRevenue}"/> VND</td>
-            </tr>
-            <tr>
-                <td>Monthly</td>
-                <td><c:out value="${monthlyRevenue}"/> VND</td>
-            </tr>
-            <tr>
-                <td>Yearly</td>
-                <td><c:out value="${yearlyRevenue}"/> VND</td>
-            </tr>
-        </table>
-    </div> --%>
+
+	<!-- Thêm vào cuối file, sau các tab khác -->
+	<div id="revenueStatistics" class="tabcontent">
+		<h2>Revenue Statistics</h2>
+		<table>
+			<tr>
+				<th>Period</th>
+				<th>Revenue (VND)</th>
+			</tr>
+			<tr>
+				<td>Daily</td>
+				<td><c:out value="${dailyRevenue}" /> VND</td>
+			</tr>
+			<tr>
+				<td>Weekly</td>
+				<td><c:out value="${weeklyRevenue}" /> VND</td>
+			</tr>
+			<tr>
+				<td>Monthly</td>
+				<td><c:out value="${monthlyRevenue}" /> VND</td>
+			</tr>
+			<tr>
+				<td>Yearly</td>
+				<td><c:out value="${yearlyRevenue}" /> VND</td>
+			</tr>
+		</table>
+		<div class="chart-container">
+			<canvas id="revenueChart"></canvas>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+        function updateChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            const labels = ['Day', 'Week', 'Month', 'Year'];
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (VND)',
+                    data: [
+                        parseFloat('${dailyRevenue}') || 0,
+                        parseFloat('${weeklyRevenue}') || 0,
+                        parseFloat('${monthlyRevenue}') || 0,
+                        parseFloat('${yearlyRevenue}') || 0
+                    ],
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 1
+                }]
+            };
+            if (window.revenueChart) {
+                window.revenueChart.destroy();
+            }
+            window.revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        window.onload = function() {
+            var activeTab = "${activeTab}";
+            var tabToOpen = activeTab ? activeTab : "pendingOrders";
+            document.querySelector("[onclick*='" + tabToOpen + "']").click();
+            updateChart();
+        };
+    </script>
+	</div>
 </body>
 </html>

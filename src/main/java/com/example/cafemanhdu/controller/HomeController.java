@@ -98,7 +98,11 @@ public class HomeController {
             model.addAttribute("menuItems", adminService.getAllMenuItems());
             model.addAttribute("tables", orderService.getAllTables());
             model.addAttribute("orderHistory", orderService.getOrderHistory());
-            
+            model.addAttribute("dailyRevenue", orderService.calculateDailyRevenue());
+            model.addAttribute("weeklyRevenue", orderService.calculateWeeklyRevenue());
+            model.addAttribute("monthlyRevenue", orderService.calculateMonthlyRevenue());
+            model.addAttribute("yearlyRevenue", orderService.calculateYearlyRevenue());
+            model.addAttribute("activeTab", tab);
             model.addAttribute("activeTab", tab);
             return "adminDashboard";
         } catch (SQLException e) {
