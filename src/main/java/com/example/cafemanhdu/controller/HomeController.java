@@ -98,6 +98,7 @@ public class HomeController {
             model.addAttribute("menuItems", adminService.getAllMenuItems());
             model.addAttribute("tables", orderService.getAllTables());
             model.addAttribute("orderHistory", orderService.getOrderHistory());
+            
             model.addAttribute("activeTab", tab);
             return "adminDashboard";
         } catch (SQLException e) {
@@ -190,9 +191,11 @@ public class HomeController {
     }
 
     @PostMapping("/updateMenuItem")
-    public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
+    public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, 
+                                @RequestParam("price") java.math.BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
             adminService.updateMenuItem(itemId, itemName, price);
+            adminService.updateItemStatus(itemId, status); // Cập nhật status
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating menu item: " + e.getMessage());

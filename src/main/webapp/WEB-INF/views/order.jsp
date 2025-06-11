@@ -44,12 +44,12 @@
             <div style="margin-top: 20px;">
                 <label>Payment Method:</label>
                 <select name="paymentMethod">
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
+                    <option value="cash">Tiền mặt</option>
+                    <option value="card">Chuyển Khoản</option>
                 </select>
-                <label>Comments:</label>
+                <label>Ghi chú:</label>
                 <input type="text" name="comments">
-                <button type="submit">Submit Order</button>
+                <button type="submit">Xác nhận đặt món</button>
             </div>
         </form>
     </div>
