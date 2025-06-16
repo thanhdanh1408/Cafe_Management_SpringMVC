@@ -1,0 +1,176 @@
+/* General Styles - Áp dụng cho toàn bộ ứng dụng */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles - Áp dụng cho header chung */
+.header {
+    background-color: #4a90e2;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 24px;
+}
+
+/* Home Page Styles - Áp dụng cho trang home (nếu có) */
+.home {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.home .welcome {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Admin Dashboard Styles - Áp dụng cho trang adminDashboard.jsp */
+.admin-dashboard {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tab {
+    overflow: hidden;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.tab button:hover {
+    background-color: #ddd;
+}
+
+.tab button.active {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.tabcontent {
+    display: none;
+    padding: 20px;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.tabcontent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabcontent th, .tabcontent td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabcontent th {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.tabcontent .chart-container {
+    margin-top: 20px;
+    height: 300px;
+}
+
+.tabcontent .error {
+    color: #d32f2f;
+    margin-top: 10px;
+}
+
+/* Revenue Statistics Styles - Áp dụng cho tab revenueStatistics */
+.revenue-statistics {
+    padding: 20px;
+}
+
+.revenue-statistics table {
+    margin-bottom: 20px;
+}
+
+.revenue-statistics .chart-container canvas {
+    max-width: 100%;
+}
+
+/* Form Styles - Áp dụng cho các form (nếu có) */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group button {
+    background-color: #4a90e2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group button:hover {
+    background-color: #357abd;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .tab button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .tabcontent table {
+        font-size: 14px;
+    }
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+}

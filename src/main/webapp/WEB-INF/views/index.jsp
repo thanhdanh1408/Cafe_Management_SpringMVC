@@ -60,12 +60,7 @@ h1 {
 			<%=new java.util.Date()%></p>
 		<p class="status">JDBC Test: ${jdbcMessage}</p>
 		<div class="nav-buttons">
-			<a href="/CafeManagement/scanQr?qrCode=qr_table1">Scan QR Code
-				(User)</a> <a href="/CafeManagement/admin">Admin Dashboard</a>
-		</div>
-<!-- 		<div class="qr-code">
-			<h2>Scan this QR Code to Order (Table 1)</h2>
-			<img src="/CafeManagement/generateQr" alt="QR Code for Table 1"> -->
+			<a href="/CafeManagement/admin">Admin Dashboard</a>
 		</div>
 	</div>
 </body>

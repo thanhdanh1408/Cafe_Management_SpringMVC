@@ -8,12 +8,16 @@
 <style>
 body {
 	font-family: Arial, sans-serif;
-	margin: 20px;
+	background-color: #f0f2f5;
+	margin: 0;
+	padding: 20px;
 }
 
 .tab {
 	overflow: hidden;
-	border-bottom: 1px solid #ccc;
+	border: 1px solid #ccc;
+	background-color: #f1f1f1;
+	border-radius: 5px 5px 0 0;
 }
 
 .tab button {
@@ -24,6 +28,7 @@ body {
 	cursor: pointer;
 	padding: 14px 16px;
 	transition: 0.3s;
+	font-size: 16px;
 }
 
 .tab button:hover {
@@ -40,21 +45,27 @@ body {
 	padding: 20px;
 	border: 1px solid #ccc;
 	border-top: none;
-}
-
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 20px;
+	background-color: #fff;
+	border-radius: 0 0 5px 5px;
 }
 
 th, td {
-	padding: 10px;
-	border: 1px solid #ddd;
+	padding: 12px;
+	text-align: left;
+	border-bottom: 1px solid #ddd;
 }
 
 th {
+	background-color: #4CAF50;
+	color: white;
+}
+
+tr:nth-child(even) {
 	background-color: #f2f2f2;
+}
+
+tr:hover {
+	background-color: #ddd;
 }
 
 .form-container {
@@ -92,6 +103,12 @@ button {
 
 .logout-btn:hover {
 	background-color: #cc0000;
+}
+
+.chart-container {
+	margin-top: 20px;
+	width: 100%;
+	height: 300px;
 }
 
 .edit-form {
@@ -191,7 +208,7 @@ button {
 			<p class="empty-message">No pending orders available.</p>
 		</c:if>
 		<c:if test="${not empty pendingOrders}">
-			<table>
+			<table style="width: 100%">
 				<tr>
 					<th>Order ID</th>
 					<th>Table</th>
@@ -261,7 +278,7 @@ button {
 				<button type="submit">Add</button>
 			</form>
 		</div>
-		<table>
+		<table style="width: 100%">
 			<tr>
 				<th>Item ID</th>
 				<th>Item Name</th>
@@ -317,7 +334,7 @@ button {
 				<button type="submit">Add</button>
 			</form>
 		</div>
-		<table>
+		<table style="width: 100%">
 			<tr>
 				<th>Table ID</th>
 				<th>Table Number</th>
@@ -350,7 +367,7 @@ button {
 			<p class="empty-message">No order history available.</p>
 		</c:if>
 		<c:if test="${not empty orderHistory}">
-			<table>
+			<table style="width: 100%">
 				<tr>
 					<th>Order ID</th>
 					<th>Table</th>
@@ -386,7 +403,7 @@ button {
 	<!-- Thêm vào cuối file, sau các tab khác -->
 	<div id="revenueStatistics" class="tabcontent">
 		<h2>Revenue Statistics</h2>
-		<table>
+		<table style="width: 100%">
 			<tr>
 				<th>Period</th>
 				<th>Revenue (VND)</th>
