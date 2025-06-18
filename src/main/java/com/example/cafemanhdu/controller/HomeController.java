@@ -15,6 +15,8 @@ import com.example.cafemanhdu.service.TestJdbcService;
 import com.example.cafemanhdu.service.OrderService;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
 import com.example.cafemanhdu.model.MenuItem;
+import com.example.cafemanhdu.model.Order;
+import com.example.cafemanhdu.model.OrderDetail;
 import com.example.cafemanhdu.model.OrderForm;
 import com.example.cafemanhdu.model.Table;
 import com.example.cafemanhdu.service.AdminService;
@@ -24,6 +26,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class HomeController {
@@ -102,7 +105,35 @@ public class HomeController {
             model.addAttribute("weeklyRevenue", orderService.calculateWeeklyRevenue());
             model.addAttribute("monthlyRevenue", orderService.calculateMonthlyRevenue());
             model.addAttribute("yearlyRevenue", orderService.calculateYearlyRevenue());
-            model.addAttribute("activeTab", tab);
+            
+         // Gán chi tiết đơn hàng
+            List<Order> pendingOrders = (List<Order>) model.getAttribute("pendingOrders");
+            for (Order order : pendingOrders) {
+                List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
+                if (details != null && !details.isEmpty()) {
+                    order.setDetails(details);
+                    System.out.println("Assigned details to orderId " + order.getOrderId() + ": " + details.size() + " items");
+                } else {
+                    order.setDetails(new ArrayList<>());
+                    System.out.println("No details assigned for order ID: " + order.getOrderId());
+                }
+            }
+            List<Order> orderHistory = (List<Order>) model.getAttribute("orderHistory");
+            for (Order order : orderHistory) {
+                List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
+                if (details != null && !details.isEmpty()) {
+                    order.setDetails(details);
+                    System.out.println("Assigned details to orderId " + order.getOrderId() + ": " + details.size() + " items");
+                } else {
+                    order.setDetails(new ArrayList<>());
+                    System.out.println("No details assigned for order ID: " + order.getOrderId());
+                }
+            }
+            
+         // Thêm thống kê số lượng order của các món
+            Map<String, Integer> dailyItemOrderCounts = orderService.getDailyItemOrderCounts();
+            model.addAttribute("dailyItemOrderCounts", dailyItemOrderCounts);
+            
             model.addAttribute("activeTab", tab);
             return "adminDashboard";
         } catch (SQLException e) {
@@ -168,6 +199,17 @@ public class HomeController {
             } catch (SQLException ex) {
                 model.addAttribute("error", "Error reloading data: " + ex.getMessage());
             }
+            return "adminDashboard";
+        }
+    }
+    
+    @PostMapping("/deleteOrderHistory")
+    public String deleteOrderHistory(@RequestParam("orderId") int orderId, Model model) {
+        try {
+            adminService.deleteOrder(orderId); // Sử dụng cùng logic xóa như Pending Orders
+            return "redirect:/admin?tab=orderHistory";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error deleting order history: " + e.getMessage());
             return "adminDashboard";
         }
     }

@@ -217,6 +217,7 @@ button {
 					<th>Total Amount</th>
 					<th>Comments</th>
 					<th>Status</th>
+					<th>Items Ordered</th>
 					<th>Action</th>
 				</tr>
 				<c:forEach var="order" items="${pendingOrders}">
@@ -229,6 +230,21 @@ button {
 						<td>${order.totalAmount}</td>
 						<td>${order.comments}</td>
 						<td>${order.status}</td>
+						<td><c:choose>
+								<c:when
+									test="${empty order.details or order.details.size() == 0}">
+            No items ordered
+        </c:when>
+								<c:otherwise>
+									<c:forEach var="detail" items="${order.details}"
+										varStatus="loop">
+                ${detail.itemName} (x${detail.quantity})<c:if
+											test="${!loop.last}">
+											<br>
+										</c:if>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose></td>
 						<td>
 							<button onclick="toggleEditForm(${order.orderId})">Edit</button>
 							<form action="deleteOrder" method="post" style="display: inline;">
@@ -242,8 +258,8 @@ button {
 										<option value="cash"
 											${order.paymentMethod == 'cash' ? 'selected' : ''}>Tiền
 											mặt</option>
-										<option value="card"
-											${order.paymentMethod == 'Chuyển khoản' ? 'selected' : ''}>Chuyển
+										<option value="transfer"
+											${order.paymentMethod == 'transfer' ? 'selected' : ''}>Chuyển
 											khoản</option>
 									</select> <br> <label>Comments:</label> <input type="text"
 										name="comments" value="${order.comments}"> <br> <label>Status:</label>
@@ -376,6 +392,7 @@ button {
 					<th>Total Amount</th>
 					<th>Comments</th>
 					<th>Status</th>
+					<th>Items Ordered</th>
 					<th>Action</th>
 				</tr>
 				<c:forEach var="order" items="${orderHistory}">
@@ -387,6 +404,21 @@ button {
 						<td>${order.totalAmount}</td>
 						<td>${order.comments}</td>
 						<td>${order.status}</td>
+						<td><c:choose>
+								<c:when
+									test="${empty order.details or order.details.size() == 0}">No items ordered
+        						</c:when>
+        						
+								<c:otherwise>
+									<c:forEach var="detail" items="${order.details}"
+										varStatus="loop">${detail.itemName} (x${detail.quantity})
+										<c:if
+											test="${!loop.last}">
+											<br>
+										</c:if>
+									</c:forEach>
+								</c:otherwise>
+							</c:choose></td>
 						<td>
 							<form action="deleteOrderHistory" method="post"
 								style="display: inline;">
@@ -425,6 +457,26 @@ button {
 				<td><c:out value="${yearlyRevenue}" /> VND</td>
 			</tr>
 		</table>
+		
+		<h3>Item Order Counts (Today)</h3>
+        <c:if test="${empty dailyItemOrderCounts or dailyItemOrderCounts.size() == 0}">
+            <p class="empty-message">No item orders today.</p>
+        </c:if>
+        <c:if test="${not empty dailyItemOrderCounts and dailyItemOrderCounts.size() > 0}">
+            <table style="width: 100%; margin-top: 20px;">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Order Count</th>
+                </tr>
+                <c:forEach var="entry" items="${dailyItemOrderCounts}">
+                    <tr>
+                        <td>${entry.key}</td>
+                        <td>${entry.value}</td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </c:if>
+        
 		<div class="chart-container">
 			<canvas id="revenueChart"></canvas>
 		</div>

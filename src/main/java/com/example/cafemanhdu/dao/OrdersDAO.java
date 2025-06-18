@@ -8,13 +8,16 @@ import org.springframework.stereotype.Repository;
 
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.OrderDetail;
+import com.example.cafemanhdu.model.MenuItem;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class OrdersDAO {
@@ -34,6 +37,18 @@ public class OrdersDAO {
         }, keyHolder);
         return keyHolder.getKey().intValue();
     }
+    
+    public void updateOrder(int orderId, String paymentMethod, String comments, String status) throws SQLException {
+        String sql = "UPDATE orders SET payment_method = ?, comments = ?, status = ? WHERE order_id = ?";
+        jdbcTemplate.update(sql, paymentMethod, comments, status, orderId);
+    }
+
+    public void deleteOrder(int orderId) throws SQLException {
+        String deleteDetailsSql = "DELETE FROM orderdetails WHERE order_id = ?";
+        String deleteOrderSql = "DELETE FROM orders WHERE order_id = ?";
+        jdbcTemplate.update(deleteDetailsSql, orderId);
+        jdbcTemplate.update(deleteOrderSql, orderId);
+    }
 
     public void createOrderDetails(int orderId, List<OrderDetail> details) throws SQLException {
         String sql = "INSERT INTO orderdetails (order_id, item_id, quantity, subtotal) VALUES (?, ?, ?, ?)";
@@ -43,6 +58,23 @@ public class OrdersDAO {
             ps.setInt(3, detail.getQuantity());
             ps.setBigDecimal(4, detail.getSubtotal());
         });
+    }
+    
+    public List<OrderDetail> getOrderDetails(int orderId) throws SQLException {
+        String sql = "SELECT od.item_id, od.quantity, od.subtotal, mi.item_name " +
+                     "FROM orderdetails od " +
+                     "LEFT JOIN menuitems mi ON od.item_id = mi.item_id " +
+                     "WHERE od.order_id = ?";
+        List<OrderDetail> details = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            OrderDetail detail = new OrderDetail();
+            detail.setItemId(rs.getInt("item_id"));
+            detail.setQuantity(rs.getInt("quantity"));
+            detail.setSubtotal(rs.getBigDecimal("subtotal"));
+            detail.setItemName(rs.getString("item_name") != null ? rs.getString("item_name") : "Unknown Item");
+            return detail;
+        }, orderId);
+        System.out.println("getOrderDetails for orderId " + orderId + ": " + (details != null ? details.size() : "null")); // Debug log
+        return details != null ? details : new ArrayList<>();
     }
 
     public List<Order> getPendingOrders() throws SQLException {
@@ -84,18 +116,24 @@ public class OrdersDAO {
         jdbcTemplate.update(sql, status, orderId);
     }
 
-    public void updateOrder(int orderId, String paymentMethod, String comments, String status) throws SQLException {
-        String sql = "UPDATE orders SET payment_method = ?, comments = ?, status = ? WHERE order_id = ?";
-        jdbcTemplate.update(sql, paymentMethod, comments, status, orderId);
+    public Order getOrderById(int orderId) throws SQLException {
+        String sql = "SELECT o.order_id, o.table_id, t.table_number, o.order_time, o.payment_method, o.total_amount, o.comments, o.status " +
+                     "FROM orders o JOIN tables t ON o.table_id = t.table_id WHERE o.order_id = ?";
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            Order order = new Order();
+            order.setOrderId(rs.getInt("order_id"));
+            order.setTableId(rs.getInt("table_id"));
+            order.setTableNumber(rs.getString("table_number"));
+            order.setOrderTime(rs.getTimestamp("order_time"));
+            order.setPaymentMethod(rs.getString("payment_method"));
+            order.setTotalAmount(rs.getBigDecimal("total_amount"));
+            order.setComments(rs.getString("comments"));
+            order.setStatus(rs.getString("status"));
+            return order;
+        }, orderId);
     }
 
-    public void deleteOrder(int orderId) throws SQLException {
-        String deleteDetailsSql = "DELETE FROM order_details WHERE order_id = ?";
-        String deleteOrderSql = "DELETE FROM orders WHERE order_id = ?";
-        jdbcTemplate.update(deleteDetailsSql, orderId);
-        jdbcTemplate.update(deleteOrderSql, orderId);
-    }
-
+    // Thống kê
     public BigDecimal calculateDailyRevenue() throws SQLException {
         String sql = "SELECT SUM(total_amount) FROM orders WHERE DATE(order_time) = CURDATE()";
         return jdbcTemplate.queryForObject(sql, BigDecimal.class);
@@ -114,5 +152,21 @@ public class OrdersDAO {
     public BigDecimal calculateYearlyRevenue() throws SQLException {
         String sql = "SELECT SUM(total_amount) FROM orders WHERE YEAR(order_time) = YEAR(CURDATE())";
         return jdbcTemplate.queryForObject(sql, BigDecimal.class);
+    }
+    
+    public Map<String, Integer> getDailyItemOrderCounts() throws SQLException {
+        String sql = "SELECT mi.item_name, SUM(od.quantity) as total_quantity " +
+                     "FROM orderdetails od " +
+                     "JOIN menuitems mi ON od.item_id = mi.item_id " +
+                     "JOIN orders o ON od.order_id = o.order_id " +
+                     "WHERE DATE(o.order_time) = CURDATE() " +
+                     "GROUP BY mi.item_name";
+        return jdbcTemplate.query(sql, rs -> {
+            Map<String, Integer> itemCounts = new HashMap<>();
+            while (rs.next()) {
+                itemCounts.put(rs.getString("item_name"), rs.getInt("total_quantity"));
+            }
+            return itemCounts;
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.example.cafemanhdu.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Order {
 	private int orderId;
@@ -13,6 +14,7 @@ public class Order {
 	private BigDecimal totalAmount;
 	private String comments;
 	private String tableNumber;
+	private List<OrderDetail> details;
 
 	public int getOrderId() {
 		return orderId;
@@ -84,5 +86,13 @@ public class Order {
 
 	public void setTableNumber(String tableNumber) {
 		this.tableNumber = tableNumber;
+	}
+
+	public List<OrderDetail> getDetails() {
+		return details;
+	}
+
+	public void setDetails(List<OrderDetail> details) {
+		this.details = details;
 	}
 }

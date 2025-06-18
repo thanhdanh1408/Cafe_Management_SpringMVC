@@ -2,6 +2,7 @@ package com.example.cafemanhdu.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.example.cafemanhdu.dao.MenuItemsDAO;
 import com.example.cafemanhdu.dao.OrdersDAO;
 import com.example.cafemanhdu.dao.TablesDAO;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderService {
@@ -54,6 +56,10 @@ public class OrderService {
         ordersDAO.createOrderDetails(orderId, orderDetails);
     }
 
+    public List<OrderDetail> getOrderDetails(int orderId) throws SQLException {
+        return ordersDAO.getOrderDetails(orderId);
+    }
+    
     public List<Order> getPendingOrders() throws SQLException {
         return ordersDAO.getPendingOrders();
     }
@@ -78,7 +84,7 @@ public class OrderService {
         tablesDAO.deleteTable(tableId);
     }
     
-    //reset id table
+    // Reset id table
     public void resetTableId() throws SQLException {
         tablesDAO.resetTableId();
     }
@@ -87,6 +93,7 @@ public class OrderService {
         return ordersDAO.getOrderHistory();
     }
     
+    // Thống kê
     public BigDecimal calculateDailyRevenue() throws SQLException {
         return ordersDAO.calculateDailyRevenue();
     }
@@ -101,6 +108,19 @@ public class OrderService {
 
     public BigDecimal calculateYearlyRevenue() throws SQLException {
         return ordersDAO.calculateYearlyRevenue();
+    }
+    
+    public Map<String, Integer> getDailyItemOrderCounts() throws SQLException {
+        return ordersDAO.getDailyItemOrderCounts();
+    }
+
+    // Thêm phương thức để lấy dữ liệu chỉnh sửa
+    public Order getOrderById(int orderId) throws SQLException {
+        return ordersDAO.getOrderById(orderId);
+    }
+
+    public MenuItem getMenuItemById(int itemId) throws SQLException {
+        return menuItemsDAO.getMenuItemById(itemId);
     }
 
     public static class OrderItem {

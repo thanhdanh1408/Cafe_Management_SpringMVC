@@ -8,6 +8,7 @@ public class OrderDetail {
 	private int itemId;
 	private int quantity;
 	private BigDecimal subtotal;
+	private String itemName;
 
 	public int getOrderDetailId() {
 		return orderDetailId;
@@ -47,5 +48,13 @@ public class OrderDetail {
 
 	public void setSubtotal(BigDecimal subtotal) {
 		this.subtotal = subtotal;
+	}
+
+	public String getItemName() {
+		return itemName;
+	}
+
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
 	}
 }
