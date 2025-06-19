@@ -42,7 +42,7 @@ public class TablesDAO {
             throw new SQLException("Table not found for QR code: " + qrCode);
         }
     }
-
+    
     public List<Table> getAllTables() throws SQLException {
         List<Table> tables = new ArrayList<>();
         String sql = "SELECT table_id, table_number, qr_code, status FROM tables";
@@ -60,7 +60,6 @@ public class TablesDAO {
         }
         return tables;
     }
-    
     
     //Check số bàn trước khi thêm
     public boolean isTableNumberExists(String tableNumber) throws SQLException {
@@ -107,7 +106,6 @@ public class TablesDAO {
         }
     }
     
-    
     //Reset lại id Tables khi xóa
     public void resetTableId() throws SQLException {
         String truncateOrdersSql = "DELETE FROM orders";
@@ -128,6 +126,5 @@ public class TablesDAO {
         } catch (SQLException e) {
             throw new SQLException("Error resetting table ID: " + e.getMessage());
         }
-    }
-    
+    }  
 }

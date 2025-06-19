@@ -11,9 +11,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.cafemanhdu.service.TestJdbcService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import java.io.OutputStream;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.example.cafemanhdu.service.OrderService;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
+import com.example.cafemanhdu.dao.TablesDAO;
 import com.example.cafemanhdu.model.MenuItem;
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.OrderDetail;
@@ -22,6 +32,7 @@ import com.example.cafemanhdu.model.Table;
 import com.example.cafemanhdu.service.AdminService;
 import com.example.cafemanhdu.service.OrderService.OrderItem;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,6 +47,8 @@ public class HomeController {
     private OrderService orderService;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private TablesDAO TablesDAO;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Model model) {
@@ -61,6 +74,21 @@ public class HomeController {
         } catch (SQLException e) {
             model.addAttribute("error", "Error validating QR code: " + e.getMessage());
             return "index";
+        }
+    }
+    
+    @GetMapping("/tableInfo")
+    public String tableInfo(@RequestParam("qr_code") String qrCode, Model model) {
+        try {
+            int tableId = TablesDAO.getTableIdByQrCode(qrCode);
+            model.addAttribute("tableId", tableId);
+            // Nếu muốn lấy thêm info thì lấy tiếp ở đây (nếu cần)
+            // Table table = tablesDAO.getTableById(tableId);
+            // model.addAttribute("table", table);
+            return "tableInfo"; // Tên file JSP
+        } catch (SQLException e) {
+            model.addAttribute("error", "Không tìm thấy bàn với mã QR này!");
+            return "tableInfo"; // Trang báo lỗi
         }
     }
 
@@ -142,6 +170,19 @@ public class HomeController {
         }
     }
 
+    @PostMapping("/login")
+    public String loginAdmin(HttpServletRequest request, Model model) {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            request.getSession().setAttribute("role", "admin");
+            return "redirect:/admin"; // hoặc trang dashboard admin
+        } else {
+            model.addAttribute("error", "Sai tài khoản hoặc mật khẩu");
+            return "index";
+        }
+    }
+      
     @PostMapping("/updateOrderStatus")
     public String updateOrderStatus(@RequestParam("orderId") int orderId, @RequestParam("status") String status, Model model) {
         try {

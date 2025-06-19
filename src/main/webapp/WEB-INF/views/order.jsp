@@ -111,7 +111,7 @@
                 <label>Payment Method:</label>
                 <select name="paymentMethod">
                     <option value="cash">Tiền mặt</option>
-                    <option value="card">Chuyển Khoản</option>
+                    <option value="transfer">Chuyển Khoản</option>
                 </select>
                 <label>Ghi chú:</label>
                 <input type="text" name="comments">
