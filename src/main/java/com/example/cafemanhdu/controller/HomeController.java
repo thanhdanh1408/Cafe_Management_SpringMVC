@@ -102,7 +102,7 @@ public class HomeController {
                 }
             }
             if (selectedItems.isEmpty()) {
-                model.addAttribute("error", "Please select at least one item");
+                model.addAttribute("error", "Vui lòng chọn ít nhất một mục");
                 model.addAttribute("tableId", orderForm.getTableId());
                 model.addAttribute("menuItems", orderService.getAvailableItems());
                 return "order";

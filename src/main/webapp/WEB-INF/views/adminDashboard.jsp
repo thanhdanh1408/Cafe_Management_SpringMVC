@@ -198,7 +198,7 @@ button {
 	</div>
 
 	<div id="pendingOrders" class="tabcontent">
-		<h2>Pending Orders</h2>
+		<h2>Đơn hàng</h2>
 		<c:if test="${empty pendingOrders}">
 			<p class="empty-message">Không có đơn hàng nào đang chờ xử lý.</p>
 		</c:if>
@@ -220,20 +220,31 @@ button {
 						<td>${order.orderId}</td>
 						<td>${order.tableNumber}</td>
 						<td>${order.orderTime}</td>
-						<td>${order.paymentMethod}</td>
-						<!-- Hiển thị tĩnh -->
+						<td>
+                        <c:choose>
+                            <c:when test="${order.paymentMethod == 'cash'}">Tiền mặt</c:when>
+                            <c:when test="${order.paymentMethod == 'transfer'}">Chuyển khoản</c:when>
+                            <c:otherwise>${order.paymentMethod}</c:otherwise>
+                        </c:choose>
+                    	</td>
 						<td>${order.totalAmount}</td>
 						<td>${order.comments}</td>
-						<td>${order.status}</td>
+						<td>
+                        <c:choose>
+                            <c:when test="${order.status == 'pending'}">Đang xử lý</c:when>
+                            <c:when test="${order.status == 'preparing'}">Chuẩn bị</c:when>
+                            <c:when test="${order.status == 'completed'}">Đã thanh toán</c:when>
+                            <c:otherwise>${order.status}</c:otherwise>
+                        </c:choose>
+                    	</td>
 						<td><c:choose>
 								<c:when
-									test="${empty order.details or order.details.size() == 0}">
-            No items ordered
-        </c:when>
+									test="${empty order.details or order.details.size() == 0}">No items ordered
+        						</c:when>
 								<c:otherwise>
 									<c:forEach var="detail" items="${order.details}"
-										varStatus="loop">
-                ${detail.itemName} (x${detail.quantity})<c:if
+										varStatus="loop">${detail.itemName} (x${detail.quantity})
+										<c:if
 											test="${!loop.last}">
 											<br>
 										</c:if>
@@ -260,13 +271,11 @@ button {
 										name="comments" value="${order.comments}"> <br> <label>Status:</label>
 									<select name="status">
 										<option value="pending"
-											${order.status == 'Đang chờ xử lý' ? 'selected' : ''}>Đang chờ xử lý</option>
+											${order.status == 'Đang chờ xử lý' ? 'selected' : ''}>Đang xử lý</option>
 										<option value="preparing"
 											${order.status == 'Chuẩn bị' ? 'selected' : ''}>Chuẩn bị</option>
 										<option value="completed"
 											${order.status == 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
-										<option value="cancelled"
-											${order.status == 'Đã huỷ' ? 'selected' : ''}>Đã huỷ</option>
 									</select>
 									<button type="submit">Lưu</button>
 								</form>
@@ -279,7 +288,7 @@ button {
 	</div>
 
 	<div id="menuManagement" class="tabcontent">
-		<h2>Quản Lý Danh Mục</h2>
+		<h2>Quản Lý Menu</h2>
 		<div class="form-container">
 			<h3>Thêm món mới</h3>
 			<form action="createMenuItem" method="post">
@@ -302,7 +311,13 @@ button {
 					<td>${item.itemId}</td>
 					<td>${item.itemName}</td>
 					<td>${item.price}</td>
-					<td>${item.status}</td>
+					<td>
+                        <c:choose>
+                            <c:when test="${item.status == 'available'}">Có sẵn</c:when>
+                            <c:when test="${item.status == 'available'}">Không có sẵn</c:when>
+                            <c:otherwise>${order.paymentMethod}</c:otherwise>
+                        </c:choose>
+                    	</td>
 					<td>
 						<button onclick="toggleEditForm(${item.itemId})">Sửa</button>
 						<form action="deleteMenuItem" method="post"
@@ -360,7 +375,13 @@ button {
 					<td><img
 						src="/CafeManagement/generateQr?qrCode=${table.qrCode}"
 						alt="QR Code for ${table.tableNumber}"></td>
-					<td>${table.status}</td>
+					<td>
+                        <c:choose>
+                            <c:when test="${table.status == 'available'}">Có sẵn</c:when>
+                            <c:when test="${table.status == 'occupied'}">Không có sẵn</c:when>
+                            <c:otherwise>${order.paymentMethod}</c:otherwise>
+                        </c:choose>
+                    	</td>
 					<td>
 						<form action="deleteTable" method="post" style="display: inline;">
 							<input type="hidden" name="tableId" value="${table.tableId}">
@@ -395,10 +416,23 @@ button {
 						<td>${order.orderId}</td>
 						<td>${order.tableNumber}</td>
 						<td>${order.orderTime}</td>
-						<td>${order.paymentMethod}</td>
+						<td>
+                        <c:choose>
+                            <c:when test="${order.paymentMethod == 'cash'}">Tiền mặt</c:when>
+                            <c:when test="${order.paymentMethod == 'transfer'}">Chuyển khoản</c:when>
+                            <c:otherwise>${order.paymentMethod}</c:otherwise>
+                        </c:choose>
+                    	</td>
 						<td>${order.totalAmount}</td>
 						<td>${order.comments}</td>
-						<td>${order.status}</td>
+						<td>
+                        <c:choose>
+                            <c:when test="${order.status == 'pending'}">Đang xử lý</c:when>
+                            <c:when test="${order.status == 'preparing'}">Chuẩn bị</c:when>
+                            <c:when test="${order.status == 'completed'}">Đã thanh toán</c:when>
+                            <c:otherwise>${order.status}</c:otherwise>
+                        </c:choose>
+                    	</td>
 						<td><c:choose>
 								<c:when
 									test="${empty order.details or order.details.size() == 0}">No items ordered
@@ -418,7 +452,7 @@ button {
 							<form action="deleteOrderHistory" method="post"
 								style="display: inline;">
 								<input type="hidden" name="orderId" value="${order.orderId}">
-								<button type="submit">Lưu</button>
+								<button type="submit">Xóa</button>
 							</form>
 						</td>
 					</tr>
@@ -453,7 +487,7 @@ button {
 			</tr>
 		</table>
 		
-		<h3>Số Lượng Món Đã Đặt (Today)</h3>
+		<h3>Số Lượng Món Đã Đặt (Hôm nay)</h3>
         <c:if test="${empty dailyItemOrderCounts or dailyItemOrderCounts.size() == 0}">
             <p class="empty-message">Không có có món nào được đặt hôm nay.</p>
         </c:if>

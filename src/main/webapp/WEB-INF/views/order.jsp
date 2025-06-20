@@ -52,10 +52,27 @@
         tr:hover {
             background-color: #ddd;
         }
-        input[type="number"] {
-            width: 60px;
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .quantity-btn:hover {
+            background-color: #45a049;
+        }
+        .quantity-input {
+            width: 50px;
             padding: 5px;
-            margin-right: 5px;
+            text-align: center;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
@@ -65,7 +82,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        button {
+        button[type="submit"] {
             padding: 5px 10px;
             background-color: #4CAF50;
             color: white;
@@ -73,14 +90,26 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        button:hover {
+        button[type="submit"]:hover {
             background-color: #45a049;
         }
     </style>
+    <script>
+        function updateQuantity(itemId, change) {
+            var input = document.querySelector('input[name="items[' + itemId + '].quantity"]');
+            var currentValue = parseInt(input.value) || 0;
+            var newValue = currentValue + change;
+
+            // Giới hạn từ 0 đến 10
+            if (newValue >= 0 && newValue <= 10) {
+                input.value = newValue;
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h2>Place Order for Table ${tableId}</h2>
+        <h2>Đặt món Bàn ${tableId}</h2>
         <c:if test="${not empty error}">
             <p class="error">${error}</p>
         </c:if>
@@ -100,10 +129,14 @@
                     <tr>
                         <td>${item.itemName}</td>
                         <td>${item.price}</td>
-                        <td><input type="number" name="items[${item.itemId}].quantity" value="0" min="0"></td>
-                        <input type="hidden" name="items[${item.itemId}].itemId" value="${item.itemId}">
-                        <input type="hidden" name="items[${item.itemId}].itemName" value="${item.itemName}">
-                        <input type="hidden" name="items[${item.itemId}].price" value="${item.price}">
+                        <td class="quantity-controls">
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(${item.itemId}, -1)">-</button>
+                            <input type="text" class="quantity-input" name="items[${item.itemId}].quantity" value="0" readonly>
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(${item.itemId}, 1)">+</button>
+                            <input type="hidden" name="items[${item.itemId}].itemId" value="${item.itemId}">
+                            <input type="hidden" name="items[${item.itemId}].itemName" value="${item.itemName}">
+                            <input type="hidden" name="items[${item.itemId}].price" value="${item.price}">
+                        </td>
                     </tr>
                 </c:forEach>
             </table>
