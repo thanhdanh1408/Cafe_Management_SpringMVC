@@ -23,6 +23,10 @@ import java.util.Map;
 public class OrdersDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    public OrdersDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public int createOrder(int tableId, String paymentMethod, BigDecimal totalAmount, String comments) throws SQLException {
         String sql = "INSERT INTO orders (table_id, payment_method, total_amount, comments, status) VALUES (?, ?, ?, ?, 'pending')";
@@ -38,9 +42,9 @@ public class OrdersDAO {
         return keyHolder.getKey().intValue();
     }
     
-    public void updateOrder(int orderId, String paymentMethod, String comments, String status) throws SQLException {
-        String sql = "UPDATE orders SET payment_method = ?, comments = ?, status = ? WHERE order_id = ?";
-        jdbcTemplate.update(sql, paymentMethod, comments, status, orderId);
+    public void updateOrder(int orderId, String paymentMethod, String comments) throws SQLException {
+        String sql = "UPDATE orders SET payment_method = ?, comments = ? WHERE order_id = ?";
+        jdbcTemplate.update(sql, paymentMethod, comments, orderId);
     }
 
     public void deleteOrder(int orderId) throws SQLException {
@@ -131,6 +135,25 @@ public class OrdersDAO {
             order.setStatus(rs.getString("status"));
             return order;
         }, orderId);
+    }
+    
+    //Phương thức sắp xếp lại Id
+    public void reorderOrderIds() throws SQLException {
+        String sqlSelect = "SELECT order_id FROM orders ORDER BY order_id";
+        List<Integer> orderIds = jdbcTemplate.query(sqlSelect, (rs, rowNum) -> rs.getInt("order_id"));
+
+        // Cập nhật lại orderId theo thứ tự liên tục từ 1
+        for (int newId = 1; newId <= orderIds.size(); newId++) {
+            int oldId = orderIds.get(newId - 1);
+            if (oldId != newId) {
+                String sqlUpdate = "UPDATE orders SET order_id = ? WHERE order_id = ?";
+                jdbcTemplate.update(sqlUpdate, newId, oldId);
+            }
+        }
+
+        // Đặt lại AUTO_INCREMENT
+        String sqlResetAutoIncrement = "ALTER TABLE orders AUTO_INCREMENT = ?";
+        jdbcTemplate.update(sqlResetAutoIncrement, orderIds.size() + 1);
     }
 
     // Thống kê

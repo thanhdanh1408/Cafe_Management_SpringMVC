@@ -29,25 +29,29 @@ public class AdminService {
         ordersDAO.updateOrderStatus(orderId, status);
     }
 
-    public void updateItemStatus(int itemId, String status) throws SQLException {
-        menuItemsDAO.updateItemStatus(itemId, status);
+//    public void updateItemStatus(int itemId, String status) throws SQLException {
+//        menuItemsDAO.updateItemStatus(itemId, status);
+//    }
+//    
+    public MenuItem getMenuItemById(int itemId) throws SQLException {
+        return menuItemsDAO.getMenuItemById(itemId); // Giả sử có phương thức này trong MenuItemDAO
     }
     
     //Thêm, sửa, xóa
-    public void createMenuItem(String itemName, java.math.BigDecimal price) throws SQLException {
-        menuItemsDAO.createMenuItem(itemName, price);
+    public void createMenuItem(String itemName, java.math.BigDecimal price, String status) throws SQLException {
+        menuItemsDAO.createMenuItem(itemName, price, status);
     }
 
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
-        menuItemsDAO.updateMenuItem(itemId, itemName, price);
+    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price, String status) throws SQLException {
+        menuItemsDAO.updateMenuItem(itemId, itemName, price, status);
     }
 
     public void deleteMenuItem(int itemId) throws SQLException {
         menuItemsDAO.deleteMenuItem(itemId);
     }
     
-    public void updateOrder(int orderId, String paymentMethod, String comments, String status) throws SQLException {
-        ordersDAO.updateOrder(orderId, paymentMethod, comments, status);
+    public void updateOrder(int orderId, String paymentMethod, String comments) throws SQLException {
+        ordersDAO.updateOrder(orderId, paymentMethod, comments);
     }
     //Xóa order
     public void deleteOrder(int orderId) throws SQLException {

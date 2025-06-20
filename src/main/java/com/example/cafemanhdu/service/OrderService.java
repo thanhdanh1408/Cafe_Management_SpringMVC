@@ -51,7 +51,7 @@ public class OrderService {
             detail.setSubtotal(subtotal);
             orderDetails.add(detail);
         }
-
+        
         int orderId = ordersDAO.createOrder(tableId, paymentMethod, totalAmount, comments);
         ordersDAO.createOrderDetails(orderId, orderDetails);
     }
@@ -68,9 +68,9 @@ public class OrderService {
         ordersDAO.updateOrderStatus(orderId, status);
     }
 
-    public void updateItemStatus(int itemId, String status) throws SQLException {
-        menuItemsDAO.updateItemStatus(itemId, status);
-    }
+//    public void updateItemStatus(int itemId, String status) throws SQLException {
+//        menuItemsDAO.updateItemStatus(itemId, status);
+//    }
 
     public List<Table> getAllTables() throws SQLException {
         return tablesDAO.getAllTables();

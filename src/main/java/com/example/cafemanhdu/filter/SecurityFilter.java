@@ -76,7 +76,8 @@ public class SecurityFilter implements Filter {
 
         // Các trang khác chỉ dành cho admin (tạm thời chặn user)
         if (requestURI.contains("/admin") ||
-        	requestURI.contains("/login")) {
+        	requestURI.contains("/login") ||
+        	requestURI.contains("/editPendingOrder")) {
             httpResponse.sendRedirect("/CafeManagement/");
             return;
         }

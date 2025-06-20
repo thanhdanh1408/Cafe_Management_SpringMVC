@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.example.cafemanhdu.service.OrderService;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
+import com.example.cafemanhdu.dao.OrdersDAO;
 import com.example.cafemanhdu.dao.TablesDAO;
 import com.example.cafemanhdu.model.MenuItem;
 import com.example.cafemanhdu.model.Order;
@@ -49,7 +50,9 @@ public class HomeController {
     private AdminService adminService;
     @Autowired
     private TablesDAO TablesDAO;
-
+    @Autowired
+    private OrdersDAO OrdersDAO;
+    
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Model model) {
         String jdbcMessage = testJdbcService.testConnection();
@@ -199,13 +202,33 @@ public class HomeController {
             @RequestParam("orderId") int orderId,
             @RequestParam("paymentMethod") String paymentMethod,
             @RequestParam("comments") String comments,
-            @RequestParam("status") String status,
             Model model) {
         try {
-            adminService.updateOrder(orderId, paymentMethod, comments, status);
+            adminService.updateOrder(orderId, paymentMethod, comments);
             return "redirect:/admin?tab=pendingOrders";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating order: " + e.getMessage());
+            try {
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "pendingOrders");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
+            return "adminDashboard";
+        }
+    }
+    
+    @GetMapping("/editPendingOrder")
+    public String editPendingOrder(@RequestParam("orderId") int orderId, Model model) {
+        try {
+            Order order = orderService.getOrderById(orderId); // Lấy thông tin đơn hàng
+            model.addAttribute("order", order);
+            return "editPendingOrder";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error loading order: " + e.getMessage());
             try {
                 model.addAttribute("pendingOrders", adminService.getPendingOrders());
                 model.addAttribute("menuItems", adminService.getAllMenuItems());
@@ -227,7 +250,7 @@ public class HomeController {
             @RequestParam("status") String status,
             Model model) {
         try {
-            adminService.updateOrder(orderId, paymentMethod, comments, status);
+            adminService.updateOrder(orderId, paymentMethod, comments);
             return "redirect:/admin?tab=orderHistory";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating order history: " + e.getMessage());
@@ -255,21 +278,21 @@ public class HomeController {
         }
     }
 
-    @PostMapping("/updateItemStatus")
-    public String updateItemStatus(@RequestParam("itemId") int itemId, @RequestParam("status") String status, Model model) {
-        try {
-            adminService.updateItemStatus(itemId, status);
-            return "redirect:/admin?tab=menuManagement";
-        } catch (SQLException e) {
-            model.addAttribute("error", "Error updating item status: " + e.getMessage());
-            return "adminDashboard";
-        }
-    }
+//    @PostMapping("/updateItemStatus")
+//    public String updateItemStatus(@RequestParam("itemId") int itemId, @RequestParam("status") String status, Model model) {
+//        try {
+//            adminService.updateItemStatus(itemId, status);
+//            return "redirect:/admin?tab=menuManagement";
+//        } catch (SQLException e) {
+//            model.addAttribute("error", "Error updating item status: " + e.getMessage());
+//            return "adminDashboard";
+//        }
+//    }
 
     @PostMapping("/createMenuItem")
-    public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, Model model) {
+    public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, String status, Model model) {
         try {
-            adminService.createMenuItem(itemName, price);
+            adminService.createMenuItem(itemName, price, status);
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error creating menu item: " + e.getMessage());
@@ -277,12 +300,33 @@ public class HomeController {
         }
     }
 
+    @GetMapping("/editMenuItem")
+    public String editMenuItem(@RequestParam("itemId") int itemId, Model model) {
+        try {
+            MenuItem item = adminService.getMenuItemById(itemId); // Giả sử có phương thức này
+            model.addAttribute("item", item);
+            return "editMenuItem";
+        } catch (SQLException e) {
+            model.addAttribute("error", "Error loading menu item: " + e.getMessage());
+            try {
+                model.addAttribute("menuItems", adminService.getAllMenuItems());
+                model.addAttribute("pendingOrders", adminService.getPendingOrders());
+                model.addAttribute("tables", orderService.getAllTables());
+                model.addAttribute("orderHistory", orderService.getOrderHistory());
+                model.addAttribute("activeTab", "menuManagement");
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error reloading data: " + ex.getMessage());
+            }
+            return "adminDashboard";
+        }
+    }
+    
     @PostMapping("/updateMenuItem")
     public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, 
                                 @RequestParam("price") java.math.BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
-            adminService.updateMenuItem(itemId, itemName, price);
-            adminService.updateItemStatus(itemId, status); // Cập nhật status
+            adminService.updateMenuItem(itemId, itemName, price, status);
+//            adminService.updateItemStatus(itemId, status); // Cập nhật status
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating menu item: " + e.getMessage());
@@ -305,6 +349,7 @@ public class HomeController {
     public String deleteOrder(@RequestParam("orderId") int orderId, Model model) {
         try {
             adminService.deleteOrder(orderId);
+            OrdersDAO.reorderOrderIds(); // Sắp xếp lại orderId
             return "redirect:/admin?tab=pendingOrders";
         } catch (SQLException e) {
             model.addAttribute("error", "Error deleting order: " + e.getMessage());

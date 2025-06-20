@@ -133,14 +133,14 @@ button {
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
-    function toggleEditForm(itemId) {
+/*     function toggleEditForm(itemId) {
         var form = document.getElementById('editForm-' + itemId);
         if (form.style.display === 'none' || form.style.display === '') {
             form.style.display = 'block';
         } else {
             form.style.display = 'none';
         }
-    }
+    } */
     
     function updateChart() {
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -215,9 +215,9 @@ button {
 					<th>Món đã đặt </th>
 					<th>Tuỳ chọn </th>
 				</tr>
-				<c:forEach var="order" items="${pendingOrders}">
+				<c:forEach var="order" items="${pendingOrders}" varStatus="loop">
 					<tr>
-						<td>${order.orderId}</td>
+						<td>${loop.count}</td>
 						<td>${order.tableNumber}</td>
 						<td>${order.orderTime}</td>
 						<td>
@@ -252,34 +252,16 @@ button {
 								</c:otherwise>
 							</c:choose></td>
 						<td>
-							<button onclick="toggleEditForm(${order.orderId})">Sửa</button>
+							<a href="/CafeManagement/editPendingOrder?orderId=${order.orderId}"><button>Sửa</button></a>
 							<form action="deleteOrder" method="post" style="display: inline;">
 								<input type="hidden" name="orderId" value="${order.orderId}">
 								<button type="submit">Xoá</button>
 							</form>
-							<div id="editForm-${order.orderId}" class="edit-form">
-								<form action="updatePendingOrder" method="post">
-									<input type="hidden" name="orderId" value="${order.orderId}">
-									<label>Phương thức thanh toán:</label> <select name="paymentMethod">
-										<option value="cash"
-											${order.paymentMethod == 'Tiền mặt' ? 'selected' : ''}>Tiền
-											mặt</option>
-										<option value="transfer"
-											${order.paymentMethod == 'Chuyển khoản' ? 'selected' : ''}>Chuyển
-											khoản</option>
-									</select> <br> <label>Comments:</label> <input type="text"
-										name="comments" value="${order.comments}"> <br> <label>Status:</label>
-									<select name="status">
-										<option value="pending"
-											${order.status == 'Đang chờ xử lý' ? 'selected' : ''}>Đang xử lý</option>
-										<option value="preparing"
-											${order.status == 'Chuẩn bị' ? 'selected' : ''}>Chuẩn bị</option>
-										<option value="completed"
-											${order.status == 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
-									</select>
-									<button type="submit">Lưu</button>
-								</form>
-							</div>
+							<form action="updateOrderStatus" method="post" style="display: inline;">
+                            <input type="hidden" name="orderId" value="${order.orderId}">
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit">Hoàn Thành</button>
+                        </form>
 						</td>
 					</tr>
 				</c:forEach>
@@ -306,20 +288,20 @@ button {
 				<th>Trạng thái</th>
 				<th>Tuỳ chọn</th>
 			</tr>
-			<c:forEach var="item" items="${menuItems}">
+			<c:forEach var="item" items="${menuItems}" varStatus="loop">
 				<tr>
-					<td>${item.itemId}</td>
+					<td>${loop.count}</td>
 					<td>${item.itemName}</td>
 					<td>${item.price}</td>
 					<td>
                         <c:choose>
                             <c:when test="${item.status == 'available'}">Có sẵn</c:when>
-                            <c:when test="${item.status == 'available'}">Không có sẵn</c:when>
+                            <c:when test="${item.status == 'unavailable'}">Không có sẵn</c:when>
                             <c:otherwise>${order.paymentMethod}</c:otherwise>
                         </c:choose>
                     	</td>
 					<td>
-						<button onclick="toggleEditForm(${item.itemId})">Sửa</button>
+						<a href="/CafeManagement/editMenuItem?itemId=${item.itemId}"><button>Sửa</button></a>
 						<form action="deleteMenuItem" method="post"
 							style="display: inline;">
 							<input type="hidden" name="itemId" value="${item.itemId}">
@@ -505,52 +487,5 @@ button {
                 </c:forEach>
             </table>
         </c:if>
-        
-		<div class="chart-container">
-			<canvas id="revenueChart"></canvas>
-		</div>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script>
-        function updateChart() {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            const labels = ['Day', 'Week', 'Month', 'Year'];
-            const data = {
-                labels: labels,
-                datasets: [{
-                    label: 'Revenue (VND)',
-                    data: [
-                        parseFloat('${dailyRevenue}') || 0,
-                        parseFloat('${weeklyRevenue}') || 0,
-                        parseFloat('${monthlyRevenue}') || 0,
-                        parseFloat('${yearlyRevenue}') || 0
-                    ],
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                    borderColor: 'rgba(76, 175, 80, 1)',
-                    borderWidth: 1
-                }]
-            };
-            if (window.revenueChart) {
-                window.revenueChart.destroy();
-            }
-            window.revenueChart = new Chart(ctx, {
-                type: 'bar',
-                data: data,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        window.onload = function() {
-            var activeTab = "${activeTab}";
-            var tabToOpen = activeTab ? activeTab : "pendingOrders";
-            document.querySelector("[onclick*='" + tabToOpen + "']").click();
-            updateChart();
-        };
-    </script>
-	</div>
 </body>
 </html>

@@ -17,7 +17,7 @@ public class MenuItemsDAO {
     private JdbcTemplate jdbcTemplate;
 
     public List<MenuItem> getAvailableItems() throws SQLException {
-        String sql = "SELECT item_id, item_name, price, status FROM menuitems WHERE status = 'available'";
+        String sql = "SELECT item_id, item_name, price, status FROM menuitems";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             MenuItem item = new MenuItem();
             item.setItemId(rs.getInt("item_id"));
@@ -28,26 +28,10 @@ public class MenuItemsDAO {
         });
     }
 
-    public void updateItemStatus(int itemId, String status) throws SQLException {
-        String sql = "UPDATE menuitems SET status = ? WHERE item_id = ?";
-        jdbcTemplate.update(sql, status, itemId);
-    }
-    
-    // Thêm, sửa, xóa
-    public void createMenuItem(String itemName, java.math.BigDecimal price) throws SQLException {
-        String sql = "INSERT INTO menuitems (item_name, price, status) VALUES (?, ?, 'available')";
-        jdbcTemplate.update(sql, itemName, price);
-    }
-
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price) throws SQLException {
-        String sql = "UPDATE menuitems SET item_name = ?, price = ? WHERE item_id = ?";
-        jdbcTemplate.update(sql, itemName, price, itemId);
-    }
-
-    public void deleteMenuItem(int itemId) throws SQLException {
-        String sql = "DELETE FROM menuitems WHERE item_id = ?";
-        jdbcTemplate.update(sql, itemId);
-    }
+//    public void updateItemStatus(int itemId, String status) throws SQLException {
+//        String sql = "UPDATE menuitems SET status = ? WHERE item_id = ?";
+//        jdbcTemplate.update(sql, status, itemId);
+//    }
     
     public MenuItem getMenuItemById(int itemId) throws SQLException {
         String sql = "SELECT item_id, item_name, price, status FROM menuitems WHERE item_id = ?";
@@ -60,4 +44,22 @@ public class MenuItemsDAO {
             return item;
         }, itemId);
     }
+    
+    // Thêm, sửa, xóa
+    public void createMenuItem(String itemName, java.math.BigDecimal price, String status) throws SQLException {
+        String sql = "INSERT INTO menuitems (item_name, price, status) VALUES (?, ?, 'available')";
+        jdbcTemplate.update(sql, itemName, price, status);
+    }
+
+    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price, String status) throws SQLException {
+        String sql = "UPDATE menuitems SET item_name = ?, price = ?, status = ? WHERE item_id = ?";
+        jdbcTemplate.update(sql, itemName, price, status, itemId);
+    }
+    
+    public void deleteMenuItem(int itemId) throws SQLException {
+        String sql = "DELETE FROM menuitems WHERE item_id = ?";
+        jdbcTemplate.update(sql, itemId);
+    }
+    
+
 }
