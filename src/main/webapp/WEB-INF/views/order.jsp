@@ -108,7 +108,7 @@
                 </c:forEach>
             </table>
             <div style="margin-top: 20px;">
-                <label>Payment Method:</label>
+                <label>Phương thức thanh toán: </label>
                 <select name="paymentMethod">
                     <option value="cash">Tiền mặt</option>
                     <option value="transfer">Chuyển Khoản</option>

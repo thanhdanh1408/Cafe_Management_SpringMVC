@@ -45,10 +45,10 @@
 </head>
 <body>
     <div class="container">
-        <h2>Order Confirmation</h2>
-        <p class="message">Order thành công, quý khách chờ trong ít phút...</p>
+        <h2>Thông tin đặt món</h2>
+        <p class="message">Đặt món thành công, quý khách chờ trong ít phút...</p>
         <a href="/CafeManagement/scanQr?qrCode=${qrCode}">
-            <button>Quay lại trang Order</button>
+            <button>Quay lại trang đặt món</button>
         </a>
     </div>
 </body>

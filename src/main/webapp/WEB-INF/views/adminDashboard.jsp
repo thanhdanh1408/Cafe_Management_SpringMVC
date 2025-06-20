@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Dashboard</title>
+<title>Hệ thống Quản Lý DACK Cafe</title>
 <style>
 body {
 	font-family: Arial, sans-serif;
@@ -186,39 +186,34 @@ button {
 </head>
 <body>
 	<h1>
-		Admin Dashboard <a href="/CafeManagement/"><button
+		Hệ thống Quản Lý DACK Cafe <a href="/CafeManagement/"><button
 				class="logout-btn">Thoát</button></a>
 	</h1>
 	<div class="tab">
-		<button class="tablinks" onclick="openTab(event, 'pendingOrders')">Pending
-			Orders</button>
-		<button class="tablinks" onclick="openTab(event, 'menuManagement')">Menu
-			Management</button>
-		<button class="tablinks" onclick="openTab(event, 'tableManagement')">Table
-			Management</button>
-		<button class="tablinks" onclick="openTab(event, 'orderHistory')">Order
-			History</button>
-		<button class="tablinks" onclick="openTab(event, 'revenueStatistics')">Revenue
-			Statistics</button>
+		<button class="tablinks" onclick="openTab(event, 'pendingOrders')">Chờ thanh toán món </button>
+		<button class="tablinks" onclick="openTab(event, 'menuManagement')">Quản lý món </button>
+		<button class="tablinks" onclick="openTab(event, 'tableManagement')">Quản lý bàn </button>
+		<button class="tablinks" onclick="openTab(event, 'orderHistory')">Lịch sử đặt món </button>
+		<button class="tablinks" onclick="openTab(event, 'revenueStatistics')">Thống kê </button>
 	</div>
 
 	<div id="pendingOrders" class="tabcontent">
 		<h2>Pending Orders</h2>
 		<c:if test="${empty pendingOrders}">
-			<p class="empty-message">No pending orders available.</p>
+			<p class="empty-message">Không có đơn hàng nào đang chờ xử lý.</p>
 		</c:if>
 		<c:if test="${not empty pendingOrders}">
 			<table style="width: 100%">
 				<tr>
-					<th>Order ID</th>
-					<th>Table</th>
-					<th>Time</th>
-					<th>Payment Method</th>
-					<th>Total Amount</th>
-					<th>Comments</th>
-					<th>Status</th>
-					<th>Items Ordered</th>
-					<th>Action</th>
+					<th>STT </th>
+					<th>Bàn </th>
+					<th>Thời gian </th>
+					<th>Phương thức thanh toán </th>
+					<th>Thành tiền </th>
+					<th>Ghi chú </th>
+					<th>Trạng thái </th>
+					<th>Món đã đặt </th>
+					<th>Tuỳ chọn </th>
 				</tr>
 				<c:forEach var="order" items="${pendingOrders}">
 					<tr>
@@ -246,34 +241,34 @@ button {
 								</c:otherwise>
 							</c:choose></td>
 						<td>
-							<button onclick="toggleEditForm(${order.orderId})">Edit</button>
+							<button onclick="toggleEditForm(${order.orderId})">Sửa</button>
 							<form action="deleteOrder" method="post" style="display: inline;">
 								<input type="hidden" name="orderId" value="${order.orderId}">
-								<button type="submit">Delete</button>
+								<button type="submit">Xoá</button>
 							</form>
 							<div id="editForm-${order.orderId}" class="edit-form">
 								<form action="updatePendingOrder" method="post">
 									<input type="hidden" name="orderId" value="${order.orderId}">
-									<label>Payment Method:</label> <select name="paymentMethod">
+									<label>Phương thức thanh toán:</label> <select name="paymentMethod">
 										<option value="cash"
-											${order.paymentMethod == 'cash' ? 'selected' : ''}>Tiền
+											${order.paymentMethod == 'Tiền mặt' ? 'selected' : ''}>Tiền
 											mặt</option>
 										<option value="transfer"
-											${order.paymentMethod == 'transfer' ? 'selected' : ''}>Chuyển
+											${order.paymentMethod == 'Chuyển khoản' ? 'selected' : ''}>Chuyển
 											khoản</option>
 									</select> <br> <label>Comments:</label> <input type="text"
 										name="comments" value="${order.comments}"> <br> <label>Status:</label>
 									<select name="status">
 										<option value="pending"
-											${order.status == 'pending' ? 'selected' : ''}>Pending</option>
+											${order.status == 'Đang chờ xử lý' ? 'selected' : ''}>Đang chờ xử lý</option>
 										<option value="preparing"
-											${order.status == 'preparing' ? 'selected' : ''}>Preparing</option>
+											${order.status == 'Chuẩn bị' ? 'selected' : ''}>Chuẩn bị</option>
 										<option value="completed"
-											${order.status == 'completed' ? 'selected' : ''}>Completed</option>
+											${order.status == 'Đã thanh toán' ? 'selected' : ''}>Đã thanh toán</option>
 										<option value="cancelled"
-											${order.status == 'cancelled' ? 'selected' : ''}>Cancelled</option>
+											${order.status == 'Đã huỷ' ? 'selected' : ''}>Đã huỷ</option>
 									</select>
-									<button type="submit">Save</button>
+									<button type="submit">Lưu</button>
 								</form>
 							</div>
 						</td>
@@ -284,23 +279,23 @@ button {
 	</div>
 
 	<div id="menuManagement" class="tabcontent">
-		<h2>Menu Management</h2>
+		<h2>Quản Lý Danh Mục</h2>
 		<div class="form-container">
-			<h3>Add New Menu Item</h3>
+			<h3>Thêm món mới</h3>
 			<form action="createMenuItem" method="post">
-				<input type="text" name="itemName" placeholder="Item Name" required>
-				<input type="number" name="price" step="0.01" placeholder="Price"
+				<input type="text" name="itemName" placeholder="Tên món" required>
+				<input type="number" name="price" step="0.01" placeholder="Giá"
 					required>
-				<button type="submit">Add</button>
+				<button type="submit">Thêm</button>
 			</form>
 		</div>
 		<table style="width: 100%">
 			<tr>
-				<th>Item ID</th>
-				<th>Item Name</th>
-				<th>Price</th>
-				<th>Status</th>
-				<th>Action</th>
+				<th>STT</th>
+				<th>Tên món</th>
+				<th>Giá</th>
+				<th>Trạng thái</th>
+				<th>Tuỳ chọn</th>
 			</tr>
 			<c:forEach var="item" items="${menuItems}">
 				<tr>
@@ -309,24 +304,24 @@ button {
 					<td>${item.price}</td>
 					<td>${item.status}</td>
 					<td>
-						<button onclick="toggleEditForm(${item.itemId})">Edit</button>
+						<button onclick="toggleEditForm(${item.itemId})">Sửa</button>
 						<form action="deleteMenuItem" method="post"
 							style="display: inline;">
 							<input type="hidden" name="itemId" value="${item.itemId}">
-							<button type="submit">Delete</button>
+							<button type="submit">Xoá</button>
 						</form>
 						<div id="editForm-${item.itemId}" class="edit-form">
 							<form action="updateMenuItem" method="post">
 								<input type="hidden" name="itemId" value="${item.itemId}">
-								<label>Name:</label> <input type="text" name="itemName"
-									value="${item.itemName}" required> <label>Price:</label>
+								<label>Tên món:</label> <input type="text" name="itemName"
+									value="${item.itemName}" required> <label>Giá:</label>
 								<input type="number" name="price" step="0.01"
-									value="${item.price}" required> <label>Status:</label>
+									value="${item.price}" required> <label>Trạng thái:</label>
 								<select name="status">
 									<option value="available"
-										${item.status == 'available' ? 'selected' : ''}>Available</option>
+										${item.status == 'available' ? 'selected' : ''}>Có sẵn</option>
 									<option value="unavailable"
-										${item.status == 'unavailable' ? 'selected' : ''}>Unavailable</option>
+										${item.status == 'unavailable' ? 'selected' : ''}>Không có sẵn</option>
 								</select>
 								<button type="submit">Save</button>
 							</form>
@@ -338,25 +333,25 @@ button {
 	</div>
 
 	<div id="tableManagement" class="tabcontent">
-		<h2>Table Management</h2>
+		<h2>Quản Lý Bàn</h2>
 		<c:if test="${not empty error}">
 			<p class="error-message">${error}</p>
 		</c:if>
 		<div class="form-container">
-			<h3>Add New Table</h3>
+			<h3>Thêm bàn mới</h3>
 			<form action="createTable" method="post">
-				<input type="text" name="tableNumber" placeholder="Table Number"
+				<input type="text" name="tableNumber" placeholder="Bàn số"
 					required>
-				<button type="submit">Add</button>
+				<button type="submit">Thêm</button>
 			</form>
 		</div>
 		<table style="width: 100%">
 			<tr>
-				<th>Table ID</th>
-				<th>Table Number</th>
-				<th>QR Code</th>
-				<th>Status</th>
-				<th>Action</th>
+				<th>STT</th>
+				<th>Bàn số</th>
+				<th>Mã QR</th>
+				<th>Trạng thái</th>
+				<th>Tuỳ chọn</th>
 			</tr>
 			<c:forEach var="table" items="${tables}">
 				<tr>
@@ -369,7 +364,7 @@ button {
 					<td>
 						<form action="deleteTable" method="post" style="display: inline;">
 							<input type="hidden" name="tableId" value="${table.tableId}">
-							<button type="submit">Delete</button>
+							<button type="submit">Xoá bàn</button>
 						</form>
 					</td>
 				</tr>
@@ -378,22 +373,22 @@ button {
 	</div>
 
 	<div id="orderHistory" class="tabcontent">
-		<h2>Order History</h2>
+		<h2>Lịch Sử Đặt Món</h2>
 		<c:if test="${empty orderHistory}">
-			<p class="empty-message">No order history available.</p>
+			<p class="empty-message">Không có lịch sử đặt món.</p>
 		</c:if>
 		<c:if test="${not empty orderHistory}">
 			<table style="width: 100%">
 				<tr>
-					<th>Order ID</th>
-					<th>Table</th>
-					<th>Time</th>
-					<th>Payment Method</th>
-					<th>Total Amount</th>
-					<th>Comments</th>
-					<th>Status</th>
-					<th>Items Ordered</th>
-					<th>Action</th>
+					<th>STT</th>
+					<th>Bàn</th>
+					<th>Thời gian</th>
+					<th>Phương thức thanh toán</th>
+					<th>Thành tiền</th>
+					<th>Ghi chú</th>
+					<th>Trạng thái</th>
+					<th>Món đã đặt</th>
+					<th>Tuỳ chọn</th>
 				</tr>
 				<c:forEach var="order" items="${orderHistory}">
 					<tr>
@@ -423,7 +418,7 @@ button {
 							<form action="deleteOrderHistory" method="post"
 								style="display: inline;">
 								<input type="hidden" name="orderId" value="${order.orderId}">
-								<button type="submit">Delete</button>
+								<button type="submit">Lưu</button>
 							</form>
 						</td>
 					</tr>
@@ -434,39 +429,39 @@ button {
 
 	<!-- Thêm vào cuối file, sau các tab khác -->
 	<div id="revenueStatistics" class="tabcontent">
-		<h2>Revenue Statistics</h2>
+		<h2>Thống Kê</h2>
 		<table style="width: 100%">
 			<tr>
-				<th>Period</th>
-				<th>Revenue (VND)</th>
+				<th>Chu Kỳ</th>
+				<th>Doanh thu (VND)</th>
 			</tr>
 			<tr>
-				<td>Daily</td>
+				<td>Ngày</td>
 				<td><c:out value="${dailyRevenue}" /> VND</td>
 			</tr>
 			<tr>
-				<td>Weekly</td>
+				<td>Tuần</td>
 				<td><c:out value="${weeklyRevenue}" /> VND</td>
 			</tr>
 			<tr>
-				<td>Monthly</td>
+				<td>Tháng</td>
 				<td><c:out value="${monthlyRevenue}" /> VND</td>
 			</tr>
 			<tr>
-				<td>Yearly</td>
+				<td>Năm</td>
 				<td><c:out value="${yearlyRevenue}" /> VND</td>
 			</tr>
 		</table>
 		
-		<h3>Item Order Counts (Today)</h3>
+		<h3>Số Lượng Món Đã Đặt (Today)</h3>
         <c:if test="${empty dailyItemOrderCounts or dailyItemOrderCounts.size() == 0}">
-            <p class="empty-message">No item orders today.</p>
+            <p class="empty-message">Không có có món nào được đặt hôm nay.</p>
         </c:if>
         <c:if test="${not empty dailyItemOrderCounts and dailyItemOrderCounts.size() > 0}">
             <table style="width: 100%; margin-top: 20px;">
                 <tr>
-                    <th>Item Name</th>
-                    <th>Order Count</th>
+                    <th>Tên món</th>
+                    <th>Số Lượng Đã đặt</th>
                 </tr>
                 <c:forEach var="entry" items="${dailyItemOrderCounts}">
                     <tr>
