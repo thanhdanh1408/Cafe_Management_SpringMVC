@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -133,14 +134,34 @@ button {
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
-/*     function toggleEditForm(itemId) {
-        var form = document.getElementById('editForm-' + itemId);
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
+    
+    //JavaScript để tự động định dạng giá khi nhập
+   function formatPrice(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        if (value) {
+            let number = parseInt(value);
+            if (!isNaN(number)) {
+                input.value = number.toLocaleString('vi-VN');
+            } else {
+                input.value = '';
+            }
         } else {
-            form.style.display = 'none';
+            input.value = '';
         }
-    } */
+    }
+
+    function formatPriceBeforeSubmit() {
+        let priceInput = document.getElementById('priceInput');
+        let value = priceInput.value.replace(/[^0-9]/g, '');
+        if (value && !isNaN(parseInt(value))) {
+            priceInput.value = value;
+            return true;
+        } else {
+            alert("Vui lòng nhập giá hợp lệ (số nguyên)!");
+            priceInput.value = '';
+            return false;
+        }
+    }
     
     function updateChart() {
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -219,7 +240,7 @@ button {
 					<tr>
 						<td>${loop.count}</td>
 						<td>${order.tableNumber}</td>
-						<td>${order.orderTime}</td>
+						<td><fmt:formatDate value="${order.orderTime}" pattern="dd-MM-yyyy HH:mm:ss" /></td>
 						<td>
                         <c:choose>
                             <c:when test="${order.paymentMethod == 'cash'}">Tiền mặt</c:when>
@@ -227,7 +248,7 @@ button {
                             <c:otherwise>${order.paymentMethod}</c:otherwise>
                         </c:choose>
                     	</td>
-						<td>${order.totalAmount}</td>
+						<td><fmt:formatNumber value="${order.totalAmount}" type="number" pattern="#,###" /> VND</td>
 						<td>${order.comments}</td>
 						<td>
                         <c:choose>
@@ -275,8 +296,11 @@ button {
 			<h3>Thêm món mới</h3>
 			<form action="createMenuItem" method="post">
 				<input type="text" name="itemName" placeholder="Tên món" required>
-				<input type="number" name="price" step="0.01" placeholder="Giá"
-					required>
+				<input type="number" id ="priceInput" name="price" placeholder="Giá" required oninput="formatPrice(this)">
+				<select name="status" required>
+                	<option value="available">Có sẵn</option>
+                	<option value="unavailable">Không có sẵn</option>
+            	</select>
 				<button type="submit">Thêm</button>
 			</form>
 		</div>
@@ -292,7 +316,7 @@ button {
 				<tr>
 					<td>${loop.count}</td>
 					<td>${item.itemName}</td>
-					<td>${item.price}</td>
+					<td><fmt:formatNumber value="${item.price}" type="number" pattern="#,###" /> VND</td>
 					<td>
                         <c:choose>
                             <c:when test="${item.status == 'available'}">Có sẵn</c:when>
@@ -350,9 +374,9 @@ button {
 				<th>Trạng thái</th>
 				<th>Tuỳ chọn</th>
 			</tr>
-			<c:forEach var="table" items="${tables}">
+			<c:forEach var="table" items="${tables}" varStatus="loop">
 				<tr>
-					<td>${table.tableId}</td>
+					<td>${loop.count}</td>
 					<td>${table.tableNumber}</td>
 					<td><img
 						src="/CafeManagement/generateQr?qrCode=${table.qrCode}"
@@ -393,11 +417,11 @@ button {
 					<th>Món đã đặt</th>
 					<th>Tuỳ chọn</th>
 				</tr>
-				<c:forEach var="order" items="${orderHistory}">
+				<c:forEach var="order" items="${orderHistory}" varStatus="loop">
 					<tr>
-						<td>${order.orderId}</td>
-						<td>${order.tableNumber}</td>
-						<td>${order.orderTime}</td>
+						<td>${loop.count}</td>
+						<td>${order.tableNumber}</td>	
+						<td><fmt:formatDate value="${order.orderTime}" pattern="dd-MM-yyyy HH:mm:ss" /></td>
 						<td>
                         <c:choose>
                             <c:when test="${order.paymentMethod == 'cash'}">Tiền mặt</c:when>
@@ -405,7 +429,7 @@ button {
                             <c:otherwise>${order.paymentMethod}</c:otherwise>
                         </c:choose>
                     	</td>
-						<td>${order.totalAmount}</td>
+						<td><fmt:formatNumber value="${order.totalAmount}" type="number" pattern="#,###" /> VND</td>
 						<td>${order.comments}</td>
 						<td>
                         <c:choose>
@@ -443,7 +467,7 @@ button {
 		</c:if>
 	</div>
 
-	<!-- Thêm vào cuối file, sau các tab khác -->
+
 	<div id="revenueStatistics" class="tabcontent">
 		<h2>Thống Kê</h2>
 		<table style="width: 100%">
@@ -452,21 +476,22 @@ button {
 				<th>Doanh thu (VND)</th>
 			</tr>
 			<tr>
-				<td>Ngày</td>
-				<td><c:out value="${dailyRevenue}" /> VND</td>
-			</tr>
-			<tr>
-				<td>Tuần</td>
-				<td><c:out value="${weeklyRevenue}" /> VND</td>
-			</tr>
-			<tr>
-				<td>Tháng</td>
-				<td><c:out value="${monthlyRevenue}" /> VND</td>
-			</tr>
-			<tr>
-				<td>Năm</td>
-				<td><c:out value="${yearlyRevenue}" /> VND</td>
-			</tr>
+            <tr>
+            <td>Hôm nay</td>
+            <td><fmt:formatNumber value="${dailyRevenue}" type="number" pattern="#,###" /> VND</td>
+        </tr>
+        <tr>
+            <td>Tuần này</td>
+            <td><fmt:formatNumber value="${weeklyRevenue}" type="number" pattern="#,###" /> VND</td>
+        </tr>
+        <tr>
+            <td>Tháng này</td>
+            <td><fmt:formatNumber value="${monthlyRevenue}" type="number" pattern="#,###" /> VND</td>
+        </tr>
+        <tr>
+            <td>Năm nay</td>
+            <td><fmt:formatNumber value="${yearlyRevenue}" type="number" pattern="#,###" /> VND</td>
+        </tr>
 		</table>
 		
 		<h3>Số Lượng Món Đã Đặt (Hôm nay)</h3>
@@ -487,5 +512,6 @@ button {
                 </c:forEach>
             </table>
         </c:if>
+</div>
 </body>
 </html>

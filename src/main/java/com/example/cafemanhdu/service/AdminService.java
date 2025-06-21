@@ -7,6 +7,7 @@ import com.example.cafemanhdu.dao.OrdersDAO;
 import com.example.cafemanhdu.model.Order;
 import com.example.cafemanhdu.model.MenuItem;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -29,20 +30,16 @@ public class AdminService {
         ordersDAO.updateOrderStatus(orderId, status);
     }
 
-//    public void updateItemStatus(int itemId, String status) throws SQLException {
-//        menuItemsDAO.updateItemStatus(itemId, status);
-//    }
-//    
     public MenuItem getMenuItemById(int itemId) throws SQLException {
-        return menuItemsDAO.getMenuItemById(itemId); // Giả sử có phương thức này trong MenuItemDAO
+        return menuItemsDAO.getMenuItemById(itemId);
     }
     
-    //Thêm, sửa, xóa
-    public void createMenuItem(String itemName, java.math.BigDecimal price, String status) throws SQLException {
+    //Thêm, sửa, xóa Menu
+    public void createMenuItem(String itemName, BigDecimal price, String status) throws SQLException {
         menuItemsDAO.createMenuItem(itemName, price, status);
     }
 
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price, String status) throws SQLException {
+    public void updateMenuItem(int itemId, String itemName, BigDecimal price, String status) throws SQLException {
         menuItemsDAO.updateMenuItem(itemId, itemName, price, status);
     }
 

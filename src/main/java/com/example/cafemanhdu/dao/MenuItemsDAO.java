@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.cafemanhdu.model.MenuItem;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,12 +47,12 @@ public class MenuItemsDAO {
     }
     
     // Thêm, sửa, xóa
-    public void createMenuItem(String itemName, java.math.BigDecimal price, String status) throws SQLException {
-        String sql = "INSERT INTO menuitems (item_name, price, status) VALUES (?, ?, 'available')";
+    public void createMenuItem(String itemName, BigDecimal price, String status) throws SQLException {
+        String sql = "INSERT INTO menuitems (item_name, price, status) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, itemName, price, status);
     }
 
-    public void updateMenuItem(int itemId, String itemName, java.math.BigDecimal price, String status) throws SQLException {
+    public void updateMenuItem(int itemId, String itemName, BigDecimal price, String status) throws SQLException {
         String sql = "UPDATE menuitems SET item_name = ?, price = ?, status = ? WHERE item_id = ?";
         jdbcTemplate.update(sql, itemName, price, status, itemId);
     }

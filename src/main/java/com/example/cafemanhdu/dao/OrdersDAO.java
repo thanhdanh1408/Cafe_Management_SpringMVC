@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class OrdersDAO {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    
+
     public OrdersDAO(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -41,7 +42,7 @@ public class OrdersDAO {
         }, keyHolder);
         return keyHolder.getKey().intValue();
     }
-    
+
     public void updateOrder(int orderId, String paymentMethod, String comments) throws SQLException {
         String sql = "UPDATE orders SET payment_method = ?, comments = ? WHERE order_id = ?";
         jdbcTemplate.update(sql, paymentMethod, comments, orderId);
@@ -63,7 +64,7 @@ public class OrdersDAO {
             ps.setBigDecimal(4, detail.getSubtotal());
         });
     }
-    
+
     public List<OrderDetail> getOrderDetails(int orderId) throws SQLException {
         String sql = "SELECT od.item_id, od.quantity, od.subtotal, mi.item_name " +
                      "FROM orderdetails od " +
@@ -89,7 +90,7 @@ public class OrdersDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setTableId(rs.getInt("table_id"));
             order.setTableNumber(rs.getString("table_number"));
-            order.setOrderTime(rs.getTimestamp("order_time"));
+            order.setOrderTime(rs.getTimestamp("order_time")); // Lấy trực tiếp Timestamp
             order.setPaymentMethod(rs.getString("payment_method"));
             order.setTotalAmount(rs.getBigDecimal("total_amount"));
             order.setComments(rs.getString("comments"));
@@ -106,7 +107,7 @@ public class OrdersDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setTableId(rs.getInt("table_id"));
             order.setTableNumber(rs.getString("table_number"));
-            order.setOrderTime(rs.getTimestamp("order_time"));
+            order.setOrderTime(rs.getTimestamp("order_time")); // Lấy trực tiếp Timestamp
             order.setPaymentMethod(rs.getString("payment_method"));
             order.setTotalAmount(rs.getBigDecimal("total_amount"));
             order.setComments(rs.getString("comments"));
@@ -128,7 +129,7 @@ public class OrdersDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setTableId(rs.getInt("table_id"));
             order.setTableNumber(rs.getString("table_number"));
-            order.setOrderTime(rs.getTimestamp("order_time"));
+            order.setOrderTime(rs.getTimestamp("order_time")); // Lấy trực tiếp Timestamp
             order.setPaymentMethod(rs.getString("payment_method"));
             order.setTotalAmount(rs.getBigDecimal("total_amount"));
             order.setComments(rs.getString("comments"));
@@ -136,7 +137,7 @@ public class OrdersDAO {
             return order;
         }, orderId);
     }
-    
+
     //Phương thức sắp xếp lại Id
     public void reorderOrderIds() throws SQLException {
         String sqlSelect = "SELECT order_id FROM orders ORDER BY order_id";
@@ -176,7 +177,7 @@ public class OrdersDAO {
         String sql = "SELECT SUM(total_amount) FROM orders WHERE YEAR(order_time) = YEAR(CURDATE())";
         return jdbcTemplate.queryForObject(sql, BigDecimal.class);
     }
-    
+
     public Map<String, Integer> getDailyItemOrderCounts() throws SQLException {
         String sql = "SELECT mi.item_name, SUM(od.quantity) as total_quantity " +
                      "FROM orderdetails od " +

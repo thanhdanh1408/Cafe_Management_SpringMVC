@@ -36,6 +36,10 @@ import com.example.cafemanhdu.service.OrderService.OrderItem;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -128,29 +132,41 @@ public class HomeController {
     @GetMapping("/admin")
     public String adminDashboard(Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
         try {
-            model.addAttribute("pendingOrders", adminService.getPendingOrders());
+            List<Order> pendingOrders = adminService.getPendingOrders();
+            for (Order order : pendingOrders) {
+                order.setTotalAmount(order.getTotalAmount().multiply(new java.math.BigDecimal("1000")));
+            }
+            model.addAttribute("pendingOrders", pendingOrders);
+
             model.addAttribute("menuItems", adminService.getAllMenuItems());
             model.addAttribute("tables", orderService.getAllTables());
-            model.addAttribute("orderHistory", orderService.getOrderHistory());
-            model.addAttribute("dailyRevenue", orderService.calculateDailyRevenue());
-            model.addAttribute("weeklyRevenue", orderService.calculateWeeklyRevenue());
-            model.addAttribute("monthlyRevenue", orderService.calculateMonthlyRevenue());
-            model.addAttribute("yearlyRevenue", orderService.calculateYearlyRevenue());
-            
-         // Gán chi tiết đơn hàng
-            List<Order> pendingOrders = (List<Order>) model.getAttribute("pendingOrders");
-            for (Order order : pendingOrders) {
-                List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
-                if (details != null && !details.isEmpty()) {
-                    order.setDetails(details);
-                    System.out.println("Assigned details to orderId " + order.getOrderId() + ": " + details.size() + " items");
-                } else {
-                    order.setDetails(new ArrayList<>());
-                    System.out.println("No details assigned for order ID: " + order.getOrderId());
-                }
-            }
-            List<Order> orderHistory = (List<Order>) model.getAttribute("orderHistory");
+
+            List<Order> orderHistory = orderService.getOrderHistory();
             for (Order order : orderHistory) {
+                order.setTotalAmount(order.getTotalAmount().multiply(new java.math.BigDecimal("1000")));
+            }
+            model.addAttribute("orderHistory", orderHistory);
+
+            // Nhân doanh thu với 1000 để hiển thị
+            BigDecimal dailyRevenue = orderService.calculateDailyRevenue() != null ? orderService.calculateDailyRevenue() : BigDecimal.ZERO;
+            BigDecimal weeklyRevenue = orderService.calculateWeeklyRevenue() != null ? orderService.calculateWeeklyRevenue() : BigDecimal.ZERO;
+            BigDecimal monthlyRevenue = orderService.calculateMonthlyRevenue() != null ? orderService.calculateMonthlyRevenue() : BigDecimal.ZERO;
+            BigDecimal yearlyRevenue = orderService.calculateYearlyRevenue() != null ? orderService.calculateYearlyRevenue() : BigDecimal.ZERO;
+            model.addAttribute("dailyRevenue", dailyRevenue.multiply(new java.math.BigDecimal("1000")));
+            model.addAttribute("weeklyRevenue", weeklyRevenue.multiply(new java.math.BigDecimal("1000")));
+            model.addAttribute("monthlyRevenue", monthlyRevenue.multiply(new java.math.BigDecimal("1000")));
+            model.addAttribute("yearlyRevenue", yearlyRevenue.multiply(new java.math.BigDecimal("1000")));
+
+            // Nhân giá với 1000 để hiển thị
+            List<MenuItem> menuItems = adminService.getAllMenuItems();
+            for (MenuItem item : menuItems) {
+                item.setPrice(item.getPrice().multiply(new java.math.BigDecimal("1000")));
+            }
+            model.addAttribute("menuItems", menuItems);
+
+            // Gán chi tiết đơn hàng
+            List<Order> pendingOrdersList = (List<Order>) model.getAttribute("pendingOrders");
+            for (Order order : pendingOrdersList) {
                 List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
                 if (details != null && !details.isEmpty()) {
                     order.setDetails(details);
@@ -160,11 +176,23 @@ public class HomeController {
                     System.out.println("No details assigned for order ID: " + order.getOrderId());
                 }
             }
-            
-         // Thêm thống kê số lượng order của các món
+
+            List<Order> orderHistoryList = (List<Order>) model.getAttribute("orderHistory");
+            for (Order order : orderHistoryList) {
+                List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
+                if (details != null && !details.isEmpty()) {
+                    order.setDetails(details);
+                    System.out.println("Assigned details to orderId " + order.getOrderId() + ": " + details.size() + " items");
+                } else {
+                    order.setDetails(new ArrayList<>());
+                    System.out.println("No details assigned for order ID: " + order.getOrderId());
+                }
+            }
+
+            // Thêm thống kê số lượng order của các món
             Map<String, Integer> dailyItemOrderCounts = orderService.getDailyItemOrderCounts();
             model.addAttribute("dailyItemOrderCounts", dailyItemOrderCounts);
-            
+
             model.addAttribute("activeTab", tab);
             return "adminDashboard";
         } catch (SQLException e) {
@@ -177,7 +205,7 @@ public class HomeController {
     public String loginAdmin(HttpServletRequest request, Model model) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        if ("admin".equals(username) && "admin123".equals(password)) {
+        if ("admin".equals(username) && "123".equals(password)) {
             request.getSession().setAttribute("role", "admin");
             return "redirect:/admin"; // hoặc trang dashboard admin
         } else {
@@ -278,20 +306,11 @@ public class HomeController {
         }
     }
 
-//    @PostMapping("/updateItemStatus")
-//    public String updateItemStatus(@RequestParam("itemId") int itemId, @RequestParam("status") String status, Model model) {
-//        try {
-//            adminService.updateItemStatus(itemId, status);
-//            return "redirect:/admin?tab=menuManagement";
-//        } catch (SQLException e) {
-//            model.addAttribute("error", "Error updating item status: " + e.getMessage());
-//            return "adminDashboard";
-//        }
-//    }
-
     @PostMapping("/createMenuItem")
-    public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") java.math.BigDecimal price, String status, Model model) {
+    public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
+        	// Chia cho 1000 để chuyển từ 20000 (20.000 VND) thành 20.00
+            BigDecimal priceValue = price.divide(new java.math.BigDecimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
             adminService.createMenuItem(itemName, price, status);
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
@@ -304,8 +323,15 @@ public class HomeController {
     public String editMenuItem(@RequestParam("itemId") int itemId, Model model) {
         try {
             MenuItem item = adminService.getMenuItemById(itemId); // Giả sử có phương thức này
-            model.addAttribute("item", item);
-            return "editMenuItem";
+            if (item != null) {
+                // Nhân giá với 1000 để hiển thị
+                item.setPrice(item.getPrice().multiply(new java.math.BigDecimal("1000")));
+                model.addAttribute("item", item);
+            } else {
+                model.addAttribute("error", "Menu item not found!");
+                return "adminDashboard";
+            }
+            return "editMenuItem"; 
         } catch (SQLException e) {
             model.addAttribute("error", "Error loading menu item: " + e.getMessage());
             try {
@@ -323,10 +349,11 @@ public class HomeController {
     
     @PostMapping("/updateMenuItem")
     public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, 
-                                @RequestParam("price") java.math.BigDecimal price, @RequestParam("status") String status, Model model) {
+                                @RequestParam("price") BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
+        	// Chia cho 1000 để chuyển từ 20000 (20.000 VND) thành 20.00
+            BigDecimal priceValue = price.divide(new java.math.BigDecimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
             adminService.updateMenuItem(itemId, itemName, price, status);
-//            adminService.updateItemStatus(itemId, status); // Cập nhật status
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error updating menu item: " + e.getMessage());
