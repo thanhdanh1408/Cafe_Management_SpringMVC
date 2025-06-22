@@ -8,118 +8,179 @@
 <title>Hệ thống Quản Lý DACK Cafe</title>
 <style>
 body {
-	font-family: Arial, sans-serif;
-	background-color: #f0f2f5;
-	margin: 0;
-	padding: 20px;
+    background: #f7f4ef;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #7d5a3a;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
 }
-
-.tab {
-	overflow: hidden;
-	border: 1px solid #ccc;
-	background-color: #f1f1f1;
-	border-radius: 5px 5px 0 0;
+h1 {
+    color: #b4926c;
+    background: #faeee0;
+    border-radius: 0 0 20px 20px;
+    padding: 28px 0 15px 0;
+    font-size: 2.1rem;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px 0 rgba(180,146,108,0.07);
 }
-
-.tab button {
-	background-color: inherit;
-	float: left;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	padding: 14px 16px;
-	transition: 0.3s;
-	font-size: 16px;
-}
-
-.tab button:hover {
-	background-color: #ddd;
-}
-
-.tab button.active {
-	background-color: #4CAF50;
-	color: white;
-}
-
-.tabcontent {
-	display: none;
-	padding: 20px;
-	border: 1px solid #ccc;
-	border-top: none;
-	background-color: #fff;
-	border-radius: 0 0 5px 5px;
-}
-
-th, td {
-	padding: 12px;
-	text-align: left;
-	border-bottom: 1px solid #ddd;
-}
-
-th {
-	background-color: #4CAF50;
-	color: white;
-}
-
-tr:nth-child(even) {
-	background-color: #f2f2f2;
-}
-
-tr:hover {
-	background-color: #ddd;
-}
-
-.form-container {
-	margin-bottom: 20px;
-}
-
-.empty-message {
-	color: #888;
-	font-style: italic;
-}
-
-.error-message {
-	color: red;
-	margin-bottom: 10px;
-}
-
-input[type="text"], select {
-	padding: 5px;
-	margin-right: 5px;
-}
-
-button {
-	padding: 5px 10px;
-	cursor: pointer;
-}
-
 .logout-btn {
-	float: right;
-	padding: 10px 20px;
-	background-color: #ff4444;
-	color: white;
-	border: none;
-	cursor: pointer;
+    float: right;
+    margin-top: -16px;
+    margin-right: 20px;
+    padding: 10px 22px;
+    background: #d2b48c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 10px 0 rgba(180,146,108,0.09);
+    transition: background 0.15s, color 0.13s;
 }
-
 .logout-btn:hover {
-	background-color: #cc0000;
+    background: #b4926c;
+    color: #fff;
 }
-
-.chart-container {
-	margin-top: 20px;
-	width: 100%;
-	height: 300px;
+.tab {
+    overflow: auto;
+    border-radius: 16px 16px 0 0;
+    background: #faeee0;
+    padding: 0 0 0 10px;
+    box-shadow: 0 2px 10px 0 rgba(180,146,108,0.07);
+    margin-bottom: 0;
 }
-
+.tab button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 16px 28px 14px 28px;
+    font-size: 1.04rem;
+    font-weight: 600;
+    color: #b4926c;
+    border-radius: 16px 16px 0 0;
+    margin-right: 10px;
+    transition: background 0.18s, color 0.18s;
+    position: relative;
+}
+.tab button:hover, .tab button:focus {
+    background: #e6dbc8;
+    color: #7d5a3a;
+}
+.tab button.active {
+    background: #d2b48c;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 4px 14px 0 rgba(180,146,108,0.08);
+}
+.tabcontent {
+    display: none;
+    padding: 28px 14px 16px 14px;
+    background: #fffdfa;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 10px 24px 0 rgba(180,146,108,0.07);
+    margin-bottom: 24px;
+    margin-top: -1px;
+}
+th, td {
+    padding: 11px 6px;
+    text-align: left;
+    border-bottom: 1px solid #e6dbc8;
+}
+th {
+    background: #d2b48c;
+    color: #fff;
+    font-size: 1.01rem;
+    letter-spacing: 0.5px;
+}
+tr:nth-child(even) {
+    background-color: #faeee0;
+}
+tr:hover {
+    background: #e6dbc8;
+}
+.form-container {
+    margin-bottom: 18px;
+    background: #faeee0;
+    border-radius: 12px;
+    padding: 16px 18px 8px 18px;
+    box-shadow: 0 2px 8px 0 rgba(180,146,108,0.05);
+}
+.empty-message {
+    color: #b4926c;
+    font-style: italic;
+}
+.error-message {
+    color: #c86e48;
+    margin-bottom: 11px;
+    font-weight: bold;
+}
+input[type="text"], select, input[type="number"] {
+    padding: 8px 8px;
+    border: 1.5px solid #d2b48c;
+    border-radius: 7px;
+    font-size: 1rem;
+    background: #fff;
+    margin-bottom: 4px;
+    transition: border 0.13s, box-shadow 0.11s;
+}
+input[type="text"]:focus, select:focus, input[type="number"]:focus {
+    border: 1.5px solid #b4926c;
+    box-shadow: 0 0 6px 0 #d2b48c44;
+}
+button {
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: #d2b48c;
+    color: #fff;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.14s, color 0.13s;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 4px 0 rgba(180,146,108,0.09);
+}
+button:hover, button:focus {
+    background: #b4926c;
+    color: #fff;
+}
 .edit-form {
-	display: none;
-	margin-top: 10px;
-	padding: 10px;
-	border: 1px solid #ccc;
-	background-color: #f9f9f9;
+    display: none;
+    margin-top: 11px;
+    padding: 11px;
+    border: 1.5px solid #e6dbc8;
+    background: #faeee0;
+    border-radius: 8px;
 }
+img[alt^="QR"] {
+    width: 76px;
+    height: 76px;
+    border-radius: 7px;
+    border: 1.5px solid #d2b48c;
+    background: #fff;
+}
+.chart-container {
+    margin-top: 16px;
+    width: 100%;
+    height: 300px;
+}
+@media (max-width: 900px) {
+    .tabcontent {
+        padding: 14px 2vw 10px 2vw;
+    }
+    th, td { font-size: 0.97rem;}
+}
+@media (max-width: 600px) {
+    h1 {font-size: 1.05rem;}
+    .tab button {padding: 10px 7px;}
+}
+
 </style>
+
 <script>
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
@@ -134,9 +195,7 @@ button {
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
-    
-    //JavaScript để tự động định dạng giá khi nhập
-   function formatPrice(input) {
+    function formatPrice(input) {
         let value = input.value.replace(/[^0-9]/g, '');
         if (value) {
             let number = parseInt(value);
@@ -149,7 +208,6 @@ button {
             input.value = '';
         }
     }
-
     function formatPriceBeforeSubmit() {
         let priceInput = document.getElementById('priceInput');
         let value = priceInput.value.replace(/[^0-9]/g, '');
@@ -162,7 +220,6 @@ button {
             return false;
         }
     }
-    
     function updateChart() {
         const ctx = document.getElementById('revenueChart').getContext('2d');
         const period = document.getElementById('periodFilter').value;
@@ -197,7 +254,6 @@ button {
             }
         });
     }
-    
     window.onload = function() {
         var activeTab = "${activeTab}";
         var tabToOpen = activeTab ? activeTab : "pendingOrders";
@@ -207,8 +263,7 @@ button {
 </head>
 <body>
 	<h1>
-		Hệ thống Quản Lý DACK Cafe <a href="/CafeManagement/"><button
-				class="logout-btn">Thoát</button></a>
+		Hệ thống Quản Lý DACK Cafe <a href="/CafeManagement/"><button class="logout-btn">Thoát</button></a>
 	</h1>
 	<div class="tab">
 		<button class="tablinks" onclick="openTab(event, 'pendingOrders')">Chờ thanh toán món </button>

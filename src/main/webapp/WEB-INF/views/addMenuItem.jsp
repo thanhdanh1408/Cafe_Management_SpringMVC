@@ -7,64 +7,92 @@
 <title>Thêm món</title>
 <style>
 body {
-	font-family: Arial, sans-serif;
-	background-color: #f0f2f5;
+	font-family: 'Segoe UI', Arial, sans-serif;
+	background: linear-gradient(120deg, #ffe9c6 0%, #fff7eb 100%);
 	margin: 0;
-	padding: 20px;
+	padding: 0;
+	min-height: 100vh;
 }
 
 .container {
-	max-width: 600px;
-	margin: 0 auto;
-	background-color: #fff;
-	padding: 20px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	max-width: 420px;
+	margin: 60px auto;
+	background: #fff8f0;
+	padding: 36px 32px 30px 32px;
+	border-radius: 16px;
+	box-shadow: 0 8px 36px 0 rgba(97, 65, 40, 0.18);
 }
 
-h2 {
-	color: #333;
-	margin-bottom: 20px;
+h3 {
+	color: #795548;
+	margin-bottom: 28px;
+	font-size: 1.5rem;
+	text-align: center;
+	letter-spacing: 0.5px;
+	font-weight: bold;
 }
 
 .form-group {
-	margin-bottom: 15px;
+	margin-bottom: 22px;
 }
 
 label {
-	display: inline-block;
-	width: 120px;
+	color: #5d4037;
+	font-size: 1.07rem;
+	font-weight: 600;
+	display: block;
+	margin-bottom: 7px;
 }
 
-input[type="text"], input[type="number"] {
-	padding: 5px;
-	width: 200px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
+input[type="text"], input[type="number"], select {
+	width: 100%;
+	padding: 11px 12px;
+	font-size: 1.08rem;
+	border: 1.5px solid #d7ccc8;
+	border-radius: 7px;
+	background: #fff;
+	transition: border 0.15s;
+	outline: none;
+	box-sizing: border-box;
 }
-
-select {
-	padding: 5px;
-	width: 210px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+	border-color: #bcaaa4;
 }
 
 button {
-	padding: 5px 10px;
-	background-color: #4CAF50;
-	color: white;
+	width: 100%;
+	padding: 13px;
+	background: linear-gradient(90deg, #ffb77c 0%, #ad7745 100%);
+	color: #fff;
 	border: none;
-	border-radius: 5px;
+	border-radius: 9px;
+	font-size: 1.13rem;
+	font-weight: bold;
 	cursor: pointer;
+	letter-spacing: 1px;
+	box-shadow: 0 2px 8px 0 rgba(97,65,40,0.08);
+	transition: background 0.15s, transform 0.13s;
+	margin-top: 12px;
+}
+button:hover {
+	background: linear-gradient(90deg, #ad7745 0%, #ffb77c 100%);
+	transform: translateY(-2px) scale(1.03);
 }
 
-button:hover {
-	background-color: #45a049;
+#errorMessage {
+	margin-top: 10px;
+	font-weight: 500;
+	letter-spacing: 0.5px;
+}
+
+@media (max-width: 540px) {
+	.container {
+		padding: 20px 6vw;
+	}
 }
 </style>
 </head>
+<body>
 <div class="container">
     <h3>Thêm món mới</h3>
     <form id="addMenuItemForm" action="createMenuItem" method="post" onsubmit="return validateForm()">
@@ -85,7 +113,7 @@ button:hover {
         </div>
         <button type="submit">Thêm</button>
     </form>
-    <p id="errorMessage" style="color: red; display: none;"></p>
+    <p id="errorMessage" style="color: #ff5722; display: none;"></p>
 </div>
 
 <script>
@@ -94,24 +122,22 @@ button:hover {
         const errorMessage = document.getElementById("errorMessage");
         const maxPrice = 100000;
 
-        // Kiểm tra nếu giá là rỗng hoặc không phải số
         if (!/^\d*$/.test(value)) {
             errorMessage.textContent = "Giá chỉ được nhập số!";
             errorMessage.style.display = "block";
-            input.value = value.replace(/[^0-9]/g, ''); // Loại bỏ ký tự không phải số
+            input.value = value.replace(/[^0-9]/g, '');
             return false;
         }
 
-        // Chuyển đổi thành số để kiểm tra giới hạn
         const numValue = parseInt(value) || 0;
         if (numValue > maxPrice) {
             errorMessage.textContent = `Giá không được vượt quá ${maxPrice} VND!`;
             errorMessage.style.display = "block";
-            input.value = maxPrice; // Giới hạn tối đa
+            input.value = maxPrice;
         } else if (numValue < 0) {
             errorMessage.textContent = "Giá phải lớn hơn hoặc bằng 0!";
             errorMessage.style.display = "block";
-            input.value = 0; // Giới hạn tối thiểu
+            input.value = 0;
         } else {
             errorMessage.style.display = "none";
         }
@@ -124,7 +150,6 @@ button:hover {
         const errorMessage = document.getElementById("errorMessage");
         const maxPrice = 100000;
 
-        // Kiểm tra trước khi gửi form
         if (!/^\d+$/.test(value)) {
             errorMessage.textContent = "Giá chỉ được nhập số!";
             errorMessage.style.display = "block";
@@ -146,3 +171,4 @@ button:hover {
         return true;
     }
 </script>
+</body>
