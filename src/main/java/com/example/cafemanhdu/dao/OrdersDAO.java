@@ -129,7 +129,7 @@ public class OrdersDAO {
             order.setOrderId(rs.getInt("order_id"));
             order.setTableId(rs.getInt("table_id"));
             order.setTableNumber(rs.getString("table_number"));
-            order.setOrderTime(rs.getTimestamp("order_time")); // Lấy trực tiếp Timestamp
+            order.setOrderTime(rs.getTimestamp("order_time"));
             order.setPaymentMethod(rs.getString("payment_method"));
             order.setTotalAmount(rs.getBigDecimal("total_amount"));
             order.setComments(rs.getString("comments"));

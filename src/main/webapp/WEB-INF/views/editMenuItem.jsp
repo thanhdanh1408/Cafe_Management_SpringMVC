@@ -96,7 +96,7 @@ button:hover {
     </script>
 <body>
 	<div class="container">
-		<h2>Edit Menu Item</h2>
+		<h2>Sửa món</h2>
 		<c:if test="${not empty error}">
 			<p style="color: red;">${error}</p>
 		</c:if>

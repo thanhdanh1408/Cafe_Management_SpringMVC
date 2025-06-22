@@ -305,18 +305,35 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-
+    
+    //Phương thức tạo món
     @PostMapping("/createMenuItem")
     public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
+        	try {
         	// Chia cho 1000 để chuyển từ 20000 (20.000 VND) thành 20.00
             BigDecimal priceValue = price.divide(new java.math.BigDecimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
+            if (priceValue.compareTo(BigDecimal.ZERO) < 0 || priceValue.compareTo(new BigDecimal("100000")) > 0) {
+                model.addAttribute("error", "Giá phải từ 0 đến 100.000 VND!");
+                return "addMenuItem";
+            	} 
+        	} catch (NumberFormatException e) {
+                model.addAttribute("error", "Giá chỉ được nhập số!");
+                return "addMenuItem";
+            }
+            
             adminService.createMenuItem(itemName, price, status);
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
             model.addAttribute("error", "Error creating menu item: " + e.getMessage());
             return "adminDashboard";
         }
+    }
+    
+    //Trang thêm món
+    @GetMapping("/addMenuItem")
+    public String showAddMenuItemPage() {
+        return "addMenuItem"; // Trả về trang addMenuItem.jsp
     }
 
     @GetMapping("/editMenuItem")

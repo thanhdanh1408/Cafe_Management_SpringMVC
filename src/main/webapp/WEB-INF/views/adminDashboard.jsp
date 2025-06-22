@@ -292,18 +292,7 @@ button {
 
 	<div id="menuManagement" class="tabcontent">
 		<h2>Quản Lý Menu</h2>
-		<div class="form-container">
-			<h3>Thêm món mới</h3>
-			<form action="createMenuItem" method="post">
-				<input type="text" name="itemName" placeholder="Tên món" required>
-				<input type="number" id ="priceInput" name="price" placeholder="Giá" required oninput="formatPrice(this)">
-				<select name="status" required>
-                	<option value="available">Có sẵn</option>
-                	<option value="unavailable">Không có sẵn</option>
-            	</select>
-				<button type="submit">Thêm</button>
-			</form>
-		</div>
+		<a href="/CafeManagement/addMenuItem"><button>Thêm Món</button></a>
 		<table style="width: 100%">
 			<tr>
 				<th>STT</th>
