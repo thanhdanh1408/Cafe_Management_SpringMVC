@@ -19,8 +19,8 @@ h1 {
     color: #b4926c;
     background: #faeee0;
     border-radius: 0 0 20px 20px;
-    padding: 28px 0 15px 0;
-    font-size: 2.1rem;
+	padding: 28px 0 28px 10px;    
+	font-size: 2.1rem;
     margin-bottom: 18px;
     box-shadow: 0 2px 10px 0 rgba(180,146,108,0.07);
 }
@@ -88,12 +88,14 @@ th, td {
     padding: 11px 6px;
     text-align: left;
     border-bottom: 1px solid #e6dbc8;
+    text-align: center;
 }
 th {
     background: #d2b48c;
     color: #fff;
     font-size: 1.01rem;
     letter-spacing: 0.5px;
+    text-align: center;
 }
 tr:nth-child(even) {
     background-color: #faeee0;

@@ -102,7 +102,7 @@ button:hover {
 		</div>
 		<div class="form-group">
 		    <label>Giá:</label>
-        	<input type="number" id="priceInput" name="price" placeholder="Giá (Nhập số từ 0 - 100)" required min="0" max="100000" oninput="validatePrice(this)">        	
+        	<input type="number" id="priceInput" name="price" placeholder="Nhập giá (0 - 100,000)" required min="0" max="100000" oninput="validatePrice(this)" step="1000">        	
         </div>
         <div class="form-group">
         	<label>Trạng thái:</label>

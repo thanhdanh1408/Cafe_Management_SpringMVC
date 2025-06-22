@@ -39,23 +39,25 @@ public class OrderService {
 	}
 
 	public void submitOrder(int tableId, List<OrderItem> items, String paymentMethod, String comments)
-			throws SQLException {
-		BigDecimal totalAmount = BigDecimal.ZERO;
-		List<OrderDetail> orderDetails = new ArrayList<>();
+            throws SQLException {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<OrderDetail> orderDetails = new ArrayList<>();
 
-		for (OrderItem item : items) {
-			BigDecimal subtotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-			totalAmount = totalAmount.add(subtotal);
-			OrderDetail detail = new OrderDetail();
-			detail.setItemId(item.getItemId());
-			detail.setQuantity(item.getQuantity());
-			detail.setSubtotal(subtotal);
-			orderDetails.add(detail);
-		}
+        for (OrderItem item : items) {
+            MenuItem menuItem = menuItemsDAO.getMenuItemById(item.getItemId());
+            BigDecimal itemPrice = menuItem.getPrice(); // Giá ở đơn vị lớn (20000)
+            BigDecimal subtotal = itemPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+            totalAmount = totalAmount.add(subtotal);
+            OrderDetail detail = new OrderDetail();
+            detail.setItemId(item.getItemId());
+            detail.setQuantity(item.getQuantity());
+            detail.setSubtotal(subtotal);
+            orderDetails.add(detail);
+        }
 
-		int orderId = ordersDAO.createOrder(tableId, paymentMethod, totalAmount, comments);
-		ordersDAO.createOrderDetails(orderId, orderDetails);
-	}
+        int orderId = ordersDAO.createOrder(tableId, paymentMethod, totalAmount, comments);
+        ordersDAO.createOrderDetails(orderId, orderDetails);
+    }
 
 	public List<OrderDetail> getOrderDetails(int orderId) throws SQLException {
 		return ordersDAO.getOrderDetails(orderId);
@@ -68,10 +70,6 @@ public class OrderService {
 	public void updateOrderStatus(int orderId, String status) throws SQLException {
 		ordersDAO.updateOrderStatus(orderId, status);
 	}
-
-//    public void updateItemStatus(int itemId, String status) throws SQLException {
-//        menuItemsDAO.updateItemStatus(itemId, status);
-//    }
 
 	public List<Table> getAllTables() throws SQLException {
 		return tablesDAO.getAllTables();

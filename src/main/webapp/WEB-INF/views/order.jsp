@@ -68,6 +68,7 @@
             border-radius: 11px 11px 0 0;
             letter-spacing: 0.4px;
             border-bottom: 1.5px solid #e6dbc8;
+            text-align: center;
         }
         tr {
             background: #fff;
@@ -194,7 +195,6 @@
             var input = document.querySelector('input[name="items[' + itemId + '].quantity"]');
             var currentValue = parseInt(input.value) || 0;
             var newValue = currentValue + change;
-            // Giới hạn từ 0 đến 10
             if (newValue >= 0 && newValue <= 10) {
                 input.value = newValue;
             }
@@ -222,7 +222,7 @@
                 <c:forEach var="item" items="${menuItems}">
                     <tr>
                         <td>${item.itemName}</td>
-                        <td><fmt:formatNumber value="${item.price}" type="number" pattern="#,###" /></td>
+                        <td><fmt:formatNumber value="${item.price}" type="number" pattern="#,###" /> VND</td>
                         <td class="quantity-controls">
                             <button type="button" class="quantity-btn" onclick="updateQuantity(${item.itemId}, -1)">-</button>
                             <input type="text" class="quantity-input" name="items[${item.itemId}].quantity" value="0" readonly>

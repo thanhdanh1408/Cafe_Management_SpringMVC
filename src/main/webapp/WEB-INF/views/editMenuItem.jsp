@@ -87,31 +87,40 @@ p[style*="color: red"] {
 }
 </style>
 <script>
-    function formatPrice(input) {
+    function validatePrice(input) {
         let value = input.value.replace(/[^0-9]/g, '');
         if (value) {
             let number = parseInt(value);
             if (!isNaN(number)) {
-                input.value = number.toLocaleString('vi-VN');
+                input.value = number; // Chỉ giữ số nguyên
             } else {
                 input.value = '';
             }
-        } else {
-            input.value = '';
         }
     }
 
-    function formatPriceBeforeSubmit() {
+    function validateForm() {
         let priceInput = document.getElementById('priceInput');
-        let value = priceInput.value.replace(/[^0-9]/g, '');
-        if (value && !isNaN(parseInt(value))) {
-            priceInput.value = value; // Gửi giá trị số nguyên (VD: 20000)
-            return true;
-        } else {
+        let value = priceInput.value;
+        const maxPrice = 100000;
+
+        if (!/^\d+$/.test(value)) {
             alert("Vui lòng nhập giá hợp lệ (số nguyên)!");
             priceInput.value = '';
             return false;
         }
+
+        const numValue = parseInt(value);
+        if (numValue > maxPrice) {
+            alert(`Giá không được vượt quá ${maxPrice} VND!`);
+            priceInput.value = maxPrice;
+            return false;
+        } else if (numValue < 0) {
+            alert("Giá phải lớn hơn hoặc bằng 0!");
+            priceInput.value = 0;
+            return false;
+        }
+        return true;
     }
 </script>
 </head>
@@ -121,15 +130,15 @@ p[style*="color: red"] {
         <c:if test="${not empty error}">
             <p style="color: red;">${error}</p>
         </c:if>
-        <form action="/CafeManagement/updateMenuItem" method="post" onsubmit="return formatPriceBeforeSubmit()">
+        <form action="/CafeManagement/updateMenuItem" method="post" onsubmit="return validateForm()">
             <input type="hidden" name="itemId" value="${item.itemId}">
             <div class="form-group">
                 <label>Tên món:</label> 
                 <input type="text" name="itemName" value="${item.itemName}" required>
             </div>
             <div class="form-group">
-                <label>Giá:</label> 
-                <input type="text" id="priceInput" name="price" value="<fmt:formatNumber value='${item.price}' type='number' pattern='#,###' />" required oninput="formatPrice(this)">
+                <label>Giá (VND):</label> 
+                <input type="number" id="priceInput" name="price" value="${item.price}" required min="0" max="100000" oninput="validatePrice(this)" step="1000">
             </div>
             <div class="form-group">
                 <label>Trạng thái:</label> 

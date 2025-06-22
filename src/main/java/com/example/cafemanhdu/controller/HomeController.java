@@ -56,14 +56,14 @@ public class HomeController {
     private TablesDAO TablesDAO;
     @Autowired
     private OrdersDAO OrdersDAO;
-    
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Model model) {
         String jdbcMessage = testJdbcService.testConnection();
         model.addAttribute("jdbcMessage", jdbcMessage);
         return "index";
     }
-    
+
     @GetMapping("/scanQr")
     public String scanQr(@RequestParam("qrCode") String qrCode, Model model) {
         try {
@@ -72,7 +72,7 @@ public class HomeController {
                 List<MenuItem> menuItems = orderService.getAvailableItems();
                 model.addAttribute("tableId", tableId);
                 model.addAttribute("menuItems", menuItems);
-                model.addAttribute("qrCode", qrCode); // Lưu qrCode để quay lại
+                model.addAttribute("qrCode", qrCode);
                 return "order";
             } else {
                 model.addAttribute("error", "Invalid QR Code");
@@ -83,20 +83,26 @@ public class HomeController {
             return "index";
         }
     }
-    
+
     @GetMapping("/tableInfo")
     public String tableInfo(@RequestParam("qr_code") String qrCode, Model model) {
         try {
             int tableId = TablesDAO.getTableIdByQrCode(qrCode);
             model.addAttribute("tableId", tableId);
-            // Nếu muốn lấy thêm info thì lấy tiếp ở đây (nếu cần)
-            // Table table = tablesDAO.getTableById(tableId);
-            // model.addAttribute("table", table);
-            return "tableInfo"; // Tên file JSP
+            return "tableInfo";
         } catch (SQLException e) {
             model.addAttribute("error", "Không tìm thấy bàn với mã QR này!");
-            return "tableInfo"; // Trang báo lỗi
+            return "tableInfo";
         }
+    }
+
+    @GetMapping("/order")
+    public String showOrderPage(@RequestParam int tableId, @RequestParam String qrCode, Model model) throws SQLException {
+        List<MenuItem> menuItems = orderService.getAvailableItems();
+        model.addAttribute("tableId", tableId);
+        model.addAttribute("qrCode", qrCode);
+        model.addAttribute("menuItems", menuItems);
+        return "order";
     }
 
     @PostMapping("/submitOrder")
@@ -105,23 +111,45 @@ public class HomeController {
             List<OrderItem> selectedItems = new ArrayList<>();
             for (OrderForm.OrderItem formItem : orderForm.getItems()) {
                 if (formItem.getQuantity() > 0) {
-                    selectedItems.add(new OrderItem(formItem.getItemId(), formItem.getItemName(), formItem.getPrice(), formItem.getQuantity()));
+                    BigDecimal price = formItem.getPrice();
+                    if (price == null) {
+                        throw new IllegalArgumentException("Giá không hợp lệ cho món: " + formItem.getItemName());
+                    }
+                    BigDecimal adjustedPrice = price;
+                    if (adjustedPrice.compareTo(BigDecimal.ZERO) < 0 || adjustedPrice.compareTo(new BigDecimal("100000")) > 0) {
+                        throw new IllegalArgumentException("Giá vượt quá phạm vi cho phép (0-100.000 VND) cho món: " + formItem.getItemName());
+                    }
+                    selectedItems.add(new OrderItem(formItem.getItemId(), formItem.getItemName(), adjustedPrice, formItem.getQuantity()));
                 }
             }
+
             if (selectedItems.isEmpty()) {
                 model.addAttribute("error", "Vui lòng chọn ít nhất một mục");
                 model.addAttribute("tableId", orderForm.getTableId());
-                model.addAttribute("menuItems", orderService.getAvailableItems());
+                List<MenuItem> menuItems = orderService.getAvailableItems();
+                model.addAttribute("menuItems", menuItems);
                 return "order";
             }
+
             orderService.submitOrder(orderForm.getTableId(), selectedItems, orderForm.getPaymentMethod(), orderForm.getComments());
-            model.addAttribute("qrCode", orderForm.getQrCode()); // Truyền qrCode sang trang xác nhận
+            model.addAttribute("qrCode", orderForm.getQrCode());
             return "orderConfirmation";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("tableId", orderForm.getTableId());
+            try {
+                List<MenuItem> menuItems = orderService.getAvailableItems();
+                model.addAttribute("menuItems", menuItems);
+            } catch (SQLException ex) {
+                model.addAttribute("error", "Error loading menu: " + ex.getMessage());
+            }
+            return "order";
         } catch (SQLException e) {
             model.addAttribute("error", "Error submitting order: " + e.getMessage());
             model.addAttribute("tableId", orderForm.getTableId());
             try {
-                model.addAttribute("menuItems", orderService.getAvailableItems());
+                List<MenuItem> menuItems = orderService.getAvailableItems();
+                model.addAttribute("menuItems", menuItems);
             } catch (SQLException ex) {
                 model.addAttribute("error", "Error loading menu: " + ex.getMessage());
             }
@@ -133,9 +161,6 @@ public class HomeController {
     public String adminDashboard(Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
         try {
             List<Order> pendingOrders = adminService.getPendingOrders();
-            for (Order order : pendingOrders) {
-                order.setTotalAmount(order.getTotalAmount().multiply(new java.math.BigDecimal("1000")));
-            }
             model.addAttribute("pendingOrders", pendingOrders);
 
             model.addAttribute("menuItems", adminService.getAllMenuItems());
@@ -143,28 +168,20 @@ public class HomeController {
 
             List<Order> orderHistory = orderService.getOrderHistory();
             for (Order order : orderHistory) {
-                order.setTotalAmount(order.getTotalAmount().multiply(new java.math.BigDecimal("1000")));
+                order.setTotalAmount(order.getTotalAmount());
             }
             model.addAttribute("orderHistory", orderHistory);
 
-            // Nhân doanh thu với 1000 để hiển thị
+            // Sử dụng giá trị trực tiếp từ OrderService (đã ở đơn vị nhỏ)
             BigDecimal dailyRevenue = orderService.calculateDailyRevenue() != null ? orderService.calculateDailyRevenue() : BigDecimal.ZERO;
             BigDecimal weeklyRevenue = orderService.calculateWeeklyRevenue() != null ? orderService.calculateWeeklyRevenue() : BigDecimal.ZERO;
             BigDecimal monthlyRevenue = orderService.calculateMonthlyRevenue() != null ? orderService.calculateMonthlyRevenue() : BigDecimal.ZERO;
             BigDecimal yearlyRevenue = orderService.calculateYearlyRevenue() != null ? orderService.calculateYearlyRevenue() : BigDecimal.ZERO;
-            model.addAttribute("dailyRevenue", dailyRevenue.multiply(new java.math.BigDecimal("1000")));
-            model.addAttribute("weeklyRevenue", weeklyRevenue.multiply(new java.math.BigDecimal("1000")));
-            model.addAttribute("monthlyRevenue", monthlyRevenue.multiply(new java.math.BigDecimal("1000")));
-            model.addAttribute("yearlyRevenue", yearlyRevenue.multiply(new java.math.BigDecimal("1000")));
+            model.addAttribute("dailyRevenue", dailyRevenue);
+            model.addAttribute("weeklyRevenue", weeklyRevenue);
+            model.addAttribute("monthlyRevenue", monthlyRevenue);
+            model.addAttribute("yearlyRevenue", yearlyRevenue);
 
-            // Nhân giá với 1000 để hiển thị
-            List<MenuItem> menuItems = adminService.getAllMenuItems();
-            for (MenuItem item : menuItems) {
-                item.setPrice(item.getPrice().multiply(new java.math.BigDecimal("1000")));
-            }
-            model.addAttribute("menuItems", menuItems);
-
-            // Gán chi tiết đơn hàng
             List<Order> pendingOrdersList = (List<Order>) model.getAttribute("pendingOrders");
             for (Order order : pendingOrdersList) {
                 List<OrderDetail> details = orderService.getOrderDetails(order.getOrderId());
@@ -189,7 +206,6 @@ public class HomeController {
                 }
             }
 
-            // Thêm thống kê số lượng order của các món
             Map<String, Integer> dailyItemOrderCounts = orderService.getDailyItemOrderCounts();
             model.addAttribute("dailyItemOrderCounts", dailyItemOrderCounts);
 
@@ -207,13 +223,13 @@ public class HomeController {
         String password = request.getParameter("password");
         if ("admin".equals(username) && "123".equals(password)) {
             request.getSession().setAttribute("role", "admin");
-            return "redirect:/admin"; // hoặc trang dashboard admin
+            return "redirect:/admin";
         } else {
             model.addAttribute("error", "Sai tài khoản hoặc mật khẩu");
             return "index";
         }
     }
-      
+
     @PostMapping("/updateOrderStatus")
     public String updateOrderStatus(@RequestParam("orderId") int orderId, @RequestParam("status") String status, Model model) {
         try {
@@ -224,7 +240,7 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-    
+
     @PostMapping("/updatePendingOrder")
     public String updatePendingOrder(
             @RequestParam("orderId") int orderId,
@@ -248,11 +264,11 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-    
+
     @GetMapping("/editPendingOrder")
     public String editPendingOrder(@RequestParam("orderId") int orderId, Model model) {
         try {
-            Order order = orderService.getOrderById(orderId); // Lấy thông tin đơn hàng
+            Order order = orderService.getOrderById(orderId);
             model.addAttribute("order", order);
             return "editPendingOrder";
         } catch (SQLException e) {
@@ -294,34 +310,31 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-    
+
     @PostMapping("/deleteOrderHistory")
     public String deleteOrderHistory(@RequestParam("orderId") int orderId, Model model) {
         try {
-            adminService.deleteOrder(orderId); // Sử dụng cùng logic xóa như Pending Orders
+            adminService.deleteOrder(orderId);
             return "redirect:/admin?tab=orderHistory";
         } catch (SQLException e) {
             model.addAttribute("error", "Error deleting order history: " + e.getMessage());
             return "adminDashboard";
         }
     }
-    
-    //Phương thức tạo món
+
     @PostMapping("/createMenuItem")
     public String createMenuItem(@RequestParam("itemName") String itemName, @RequestParam("price") BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
-        	try {
-        	// Chia cho 1000 để chuyển từ 20000 (20.000 VND) thành 20.00
-            BigDecimal priceValue = price.divide(new java.math.BigDecimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
-            if (priceValue.compareTo(BigDecimal.ZERO) < 0 || priceValue.compareTo(new BigDecimal("100000")) > 0) {
-                model.addAttribute("error", "Giá phải từ 0 đến 100.000 VND!");
-                return "addMenuItem";
-            	} 
-        	} catch (NumberFormatException e) {
+            try {
+//                BigDecimal priceValue = price.divide(new java.math.BigDecpriceValuimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
+                if (price.compareTo(BigDecimal.ZERO) < 0 || price.compareTo(new BigDecimal("100000")) > 0) {
+                    model.addAttribute("error", "Giá phải từ 0 đến 100.000 VND!");
+                    return "addMenuItem";
+                }
+            } catch (NumberFormatException e) {
                 model.addAttribute("error", "Giá chỉ được nhập số!");
                 return "addMenuItem";
             }
-            
             adminService.createMenuItem(itemName, price, status);
             return "redirect:/admin?tab=menuManagement";
         } catch (SQLException e) {
@@ -329,26 +342,23 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-    
-    //Trang thêm món
+
     @GetMapping("/addMenuItem")
     public String showAddMenuItemPage() {
-        return "addMenuItem"; // Trả về trang addMenuItem.jsp
+        return "addMenuItem";
     }
 
     @GetMapping("/editMenuItem")
     public String editMenuItem(@RequestParam("itemId") int itemId, Model model) {
         try {
-            MenuItem item = adminService.getMenuItemById(itemId); // Giả sử có phương thức này
+            MenuItem item = adminService.getMenuItemById(itemId);
             if (item != null) {
-                // Nhân giá với 1000 để hiển thị
-                item.setPrice(item.getPrice().multiply(new java.math.BigDecimal("1000")));
                 model.addAttribute("item", item);
             } else {
                 model.addAttribute("error", "Menu item not found!");
                 return "adminDashboard";
             }
-            return "editMenuItem"; 
+            return "editMenuItem";
         } catch (SQLException e) {
             model.addAttribute("error", "Error loading menu item: " + e.getMessage());
             try {
@@ -363,12 +373,11 @@ public class HomeController {
             return "adminDashboard";
         }
     }
-    
+
     @PostMapping("/updateMenuItem")
     public String updateMenuItem(@RequestParam("itemId") int itemId, @RequestParam("itemName") String itemName, 
                                 @RequestParam("price") BigDecimal price, @RequestParam("status") String status, Model model) {
         try {
-        	// Chia cho 1000 để chuyển từ 20000 (20.000 VND) thành 20.00
             BigDecimal priceValue = price.divide(new java.math.BigDecimal("1000"), 2, java.math.BigDecimal.ROUND_HALF_UP);
             adminService.updateMenuItem(itemId, itemName, price, status);
             return "redirect:/admin?tab=menuManagement";
@@ -393,7 +402,7 @@ public class HomeController {
     public String deleteOrder(@RequestParam("orderId") int orderId, Model model) {
         try {
             adminService.deleteOrder(orderId);
-            OrdersDAO.reorderOrderIds(); // Sắp xếp lại orderId
+            OrdersDAO.reorderOrderIds();
             return "redirect:/admin?tab=pendingOrders";
         } catch (SQLException e) {
             model.addAttribute("error", "Error deleting order: " + e.getMessage());
