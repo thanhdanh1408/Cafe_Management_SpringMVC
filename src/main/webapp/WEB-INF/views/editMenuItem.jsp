@@ -92,7 +92,7 @@ p[style*="color: red"] {
         if (value) {
             let number = parseInt(value);
             if (!isNaN(number)) {
-                input.value = number; // Chỉ giữ số nguyên
+                input.value = number;
             } else {
                 input.value = '';
             }

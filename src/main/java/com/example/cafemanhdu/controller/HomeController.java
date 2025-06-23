@@ -20,6 +20,7 @@ import java.io.OutputStream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.example.cafemanhdu.service.OrderService;
 import com.example.cafemanhdu.dao.MenuItemsDAO;
@@ -158,7 +159,11 @@ public class HomeController {
     }
 
     @GetMapping("/admin")
-    public String adminDashboard(Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
+    public String adminDashboard(HttpServletRequest request,Model model, @RequestParam(value = "tab", defaultValue = "pendingOrders") String tab) {
+    	HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("role") == null || !"admin".equals(session.getAttribute("role"))) {
+            return "redirect:/CafeManagement/?error=Chưa đăng nhập";
+        }
         try {
             List<Order> pendingOrders = adminService.getPendingOrders();
             model.addAttribute("pendingOrders", pendingOrders);

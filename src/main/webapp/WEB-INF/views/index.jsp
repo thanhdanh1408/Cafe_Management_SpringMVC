@@ -35,6 +35,12 @@
             letter-spacing: 0.5px;
             font-size: 1.4rem;
         }
+        .error-message {
+            color: #ff5722;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
         form {
             margin-bottom: 10px;
         }
@@ -87,6 +93,10 @@
 <body>
     <div class="login-box">
         <h2>Đăng nhập Admin</h2>
+        <!-- Hiển thị thông báo lỗi nếu có -->
+        <c:if test="${not empty param.error}">
+            <div class="error-message">${param.error}</div>
+        </c:if>
         <form action="login" method="post">
             <label for="username">Tài khoản:</label>
             <input type="text" id="username" name="username" required>

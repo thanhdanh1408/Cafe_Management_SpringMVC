@@ -197,6 +197,7 @@ img[alt^="QR"] {
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
+    
     function formatPrice(input) {
         let value = input.value.replace(/[^0-9]/g, '');
         if (value) {

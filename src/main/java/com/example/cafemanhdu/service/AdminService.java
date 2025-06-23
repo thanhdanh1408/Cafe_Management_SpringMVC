@@ -45,8 +45,7 @@ public class AdminService {
 
     public void deleteMenuItem(int itemId) throws SQLException {
         menuItemsDAO.deleteMenuItem(itemId);
-    }
-    
+    } 
     
     public void updateOrder(int orderId, String paymentMethod, String comments) throws SQLException {
         ordersDAO.updateOrder(orderId, paymentMethod, comments);
