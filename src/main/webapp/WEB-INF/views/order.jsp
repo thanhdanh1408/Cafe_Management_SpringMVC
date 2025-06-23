@@ -179,14 +179,14 @@
                 padding-left: 3px;
                 padding-right: 3px;
             }
-            th, td { padding: 9px 2px;}
+            th, td { padding: 10px 5px;}
             .quantity-input { width: 32px; padding: 6px 0;}
         }
         @media (max-width: 500px) {
             h2 { font-size: 1.12rem;}
             .container { padding: 2vw 0.5vw 4vw 0.5vw;}
             .action-row { flex-direction: column; align-items: stretch;}
-            select, input[type="text"] { width: 98%; margin: 7px 0;}
+            select, input[type="text"] { width: 25%; margin: 7px 0;}
             button[type="submit"] { width: 100%; }
         }
     </style>
@@ -217,7 +217,7 @@
                 <tr>
                     <th>Món</th>
                     <th>Giá (VND)</th>
-                    <th>Số lượng</th>
+                    <th style="width:20%">Số lượng</th>
                 </tr>
                 <c:forEach var="item" items="${menuItems}">
                     <tr>
@@ -225,7 +225,7 @@
                         <td><fmt:formatNumber value="${item.price}" type="number" pattern="#,###" /> VND</td>
                         <td class="quantity-controls">
                             <button type="button" class="quantity-btn" onclick="updateQuantity(${item.itemId}, -1)">-</button>
-                            <input type="text" class="quantity-input" name="items[${item.itemId}].quantity" value="0" readonly>
+                            <input type="text" class="quantity-input" name="items[${item.itemId}].quantity" value="0" style="width:10%" readonly>
                             <button type="button" class="quantity-btn" onclick="updateQuantity(${item.itemId}, 1)">+</button>
                             <input type="hidden" name="items[${item.itemId}].itemId" value="${item.itemId}">
                             <input type="hidden" name="items[${item.itemId}].itemName" value="${item.itemName}">
@@ -244,7 +244,7 @@
                 </div>
                 <div>
                     <label>Ghi chú:</label>
-                    <input type="text" name="comments" placeholder="Thêm yêu cầu cho quán...">
+                    <input type="text" name="comments" placeholder="Thêm yêu cầu cho quán..." style = "width: 50%">
                 </div>
                 <button type="submit">Xác nhận đặt món</button>
             </div>

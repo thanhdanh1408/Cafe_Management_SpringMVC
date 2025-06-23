@@ -393,7 +393,11 @@ public class HomeController {
     }
 
     @PostMapping("/deleteMenuItem")
-    public String deleteMenuItem(@RequestParam("itemId") int itemId, Model model) {
+    public String deleteMenuItem(@RequestParam("itemId") int itemId, Model model, HttpServletRequest request) {
+    	HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("role") == null || !"admin".equals(session.getAttribute("role"))) {
+            return "redirect:/CafeManagement/?error=Chưa đăng nhập";
+        }
         try {
             adminService.deleteMenuItem(itemId);
             return "redirect:/admin?tab=menuManagement";

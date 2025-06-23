@@ -62,7 +62,12 @@ public class MenuItemsDAO {
     }
 
     public void deleteMenuItem(int itemId) throws SQLException {
-        String sql = "DELETE FROM menuitems WHERE item_id = ?";
-        jdbcTemplate.update(sql, itemId);
+        // Bước 1: Xóa các bản ghi liên quan trong orderdetails
+        String deleteOrderDetailsSql = "DELETE FROM orderdetails WHERE item_id = ?";
+        jdbcTemplate.update(deleteOrderDetailsSql, itemId);
+
+        // Bước 2: Xóa bản ghi trong menuitems
+        String deleteMenuItemSql = "DELETE FROM menuitems WHERE item_id = ?";
+        jdbcTemplate.update(deleteMenuItemSql, itemId);
     }
 }
